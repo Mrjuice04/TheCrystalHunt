@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import Phaser from 'phaser';
-import { character_swordsman } from 'src/app/modules/character_sword/character_swordman';
+import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
 import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
-import { monsterControl } from 'src/app/modules/monsters/monsterControl';
+import { monsterControl } from 'src/app/modules/monsters/monster_control';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 
 
@@ -79,6 +79,7 @@ class MainScene extends Phaser.Scene {
     this.player.createAnims(this);
     this.player.create();
     this.background.createGrid();
+
   }
 
   update() {

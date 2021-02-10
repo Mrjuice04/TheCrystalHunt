@@ -4,18 +4,18 @@ import { monster_zombie_bite } from 'src/app/modules/monsters/monster_zombie/mon
 import { utils } from 'src/app/modules/utils';
 
 export class monster_zombie {
+    name: string = "zombie";
     collision: collision;
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     monsterToPlayerX!: number;
     monsterToPlayerY!: number;
     healthPoint: number = 100;
-    canAttack: boolean = true;
-    canMove: boolean = true;
+    canSpawnMonster: boolean = false;
     gridArray: integer[][];
-    state_value: string = "idle";
+    state_value: string = "walking";
     jump_target!: number;
-    maxVelocityX: number = Math.round( Phaser.Math.Between(90, 125));
+    maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
 
     // ticks
     lastAttackTick!: number;
@@ -37,15 +37,48 @@ export class monster_zombie {
         aScene.load.spritesheet("bite", "./assets/monster_zombie_bite.png", { frameWidth: 11, frameHeight: 11 });
     }
 
-    public create(aScene: Phaser.Scene) {
-        let pos_x = Math.round( Phaser.Math.Between(500, 750));
-        let pos_y = Math.round( Phaser.Math.Between(100, 525));
+    //General Public Function
+    public create(aScene: Phaser.Scene, pos_x: number, pos_y: number) {
         this.sprite = aScene.physics.add.sprite(pos_x, pos_y, "monster1").setScale(1.4, 1.4);
         this.sprite.setCollideWorldBounds(true);
         this.sprite.setVelocityX(-100);
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
         this.sprite.anims.play("monster.move");
         this.collision.addMonster(this);
+    }
+
+    public update() {
+        this.machine();
+    }
+
+    public getPostision(aPlayerPosition: Phaser.Math.Vector2) {
+        let monsterposition = this.sprite.getCenter();
+        this.monsterToPlayerX = monsterposition.x - aPlayerPosition.x
+        this.monsterToPlayerY = monsterposition.y - aPlayerPosition.y
+    }
+
+    public isDamaged(aDamage: number) {
+        this.healthPoint -= aDamage;
+    }
+
+    public isStunned(aTime: number) {
+        this.sprite.setAccelerationX(0);
+        this.sprite.setVelocityX(0);
+        this.lastStunTick = utils.getTick();
+        this.stunnedTime = aTime;
+        this.state_value = "stunned";
+    }
+
+    public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
+        this.sprite.setAccelerationX(0);
+        this.sprite.setMaxVelocity(200, 10000);
+        this.sprite.setVelocity(aVelocityX, aVelocityY);
+        this.lastStunTick = utils.getTick();
+        this.stunnedTime = aTime;
+        this.state_value = "stunned";
+        if (aStun) {
+            this.isStunned(aStunTime);
+        }
     }
 
     public createAnims(aScene: Phaser.Scene) {
@@ -69,71 +102,20 @@ export class monster_zombie {
             frameRate: 10,
             repeat: -1,
         })
-
     }
 
-    public update() {
-        this.machine();
-    }
 
-    public getPostision(aPlayerPosition: Phaser.Math.Vector2) {
-        let monsterposition = this.sprite.getCenter();
-        this.monsterToPlayerX = monsterposition.x - aPlayerPosition.x
-        this.monsterToPlayerY = monsterposition.y - aPlayerPosition.y
-    }
 
-    public isStunned(aTime: number) {
-        this.sprite.setAccelerationX(0);
-        this.sprite.setVelocityX(0);
-        this.lastStunTick = utils.getTick();
-        this.stunnedTime = aTime;
-        this.state_value = "stunned";
-    }
 
-    public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
-        console.log(aVelocityX);
-        this.sprite.setAccelerationX(0);
-        this.sprite.setMaxVelocity(200, 10000);        
-        this.sprite.setVelocity(aVelocityX, 0);
-        this.lastStunTick = utils.getTick();
-        this.stunnedTime = aTime;
-        this.state_value = "stunned";
-        if (aStun) {
-            setTimeout(() => {
-                this.isStunned(aStunTime);
-            }, aTime)
-        }
-    }
-
-    private isStunEnd() {
-        if (utils.tickElapsed(this.lastStunTick) >= this.stunnedTime) {
-            this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
-            this.sprite.setVelocityX(1);
-            setTimeout(() => {
-                console.log(this.state_value);
-                console.log(this.canMove);
-            }, 200)
-            return true;
-        }
-        return false;
-    }
-
-    public isDamaged(aDamage: number) {
-        this.healthPoint -= aDamage;
-    }
-
-    machine() {
+//Character Functions
+    private machine() {
         switch (this.state_value) {
             case "idle": {
-                if (this.canMove) {
-                    this.state_value = "walking";
-                }
+
                 break;
             }
             case "walking": {
-                if (!this.canMove) {
-                    this.state_value = "idle";
-                } else if (this.checkJump()) {
+                if (this.checkJump()) {
                     this.doJump();
                     this.state_value = "jumping";
                 } else if (this.checkAttack()) {
@@ -157,9 +139,7 @@ export class monster_zombie {
                 break;
             }
             case "attack_jump": {
-                if (!this.canAttack) {
-                    this.state_value = "walking"
-                } else if (this.attack_jump()) {
+                if (this.attack_jump()) {
                     this.state_value = "attack_bite";
                 }
                 break;
@@ -210,7 +190,7 @@ export class monster_zombie {
                 }
             }
         } else {
-            if(!this.sprite.flipX){
+            if (!this.sprite.flipX) {
                 this.sprite.setAccelerationX(100);
             } else {
                 this.sprite.setAccelerationX(-100);
@@ -228,8 +208,13 @@ export class monster_zombie {
 
     private checkJump(): boolean {
         if (((this.lastJumpTick == undefined) || (utils.tickElapsed(this.lastJumpTick) >= 800))) {
-            if (this.sprite.body.touching.down && this.canMove && this.monsterToPlayerY >= 50) {
-                let curr_col = Math.round((this.sprite.getCenter().x - 12.5) / 25);
+            if (this.sprite.body.touching.down && this.monsterToPlayerY >= 50) {
+                let curr_col;
+                if (!this.sprite.flipX) {
+                    curr_col = Math.round((this.sprite.getCenter().x - 25) / 25);
+                } else {
+                    curr_col = Math.round((this.sprite.getCenter().x) / 25);
+                }
                 let curr_row = Math.round(this.sprite.getCenter().y / 25);
                 let above_value = this.gridArray[curr_row - 3][curr_col];
                 let next_above_value_1;
@@ -255,7 +240,7 @@ export class monster_zombie {
         return false;
     }
 
-    private doJump() {        
+    private doJump() {
         this.sprite.setAccelerationX(0);
         this.sprite.setVelocityX(0);
         this.sprite.setVelocityY(-250);
@@ -292,8 +277,13 @@ export class monster_zombie {
 
     private checkDash() {
         if (((this.lastDashTick == undefined) || (utils.tickElapsed(this.lastDashTick) >= 900))) {
-            if (this.sprite.body.touching.down && this.canMove && this.monsterToPlayerY >= 0) {
-                let curr_col = Math.round((this.sprite.getCenter().x - 12.5) / 25);
+            if (this.sprite.body.touching.down && this.monsterToPlayerY >= 0) {
+                let curr_col;
+                if (!this.sprite.flipX) {
+                    curr_col = Math.round((this.sprite.getCenter().x - 25) / 25);
+                } else {
+                    curr_col = Math.round((this.sprite.getCenter().x) / 25);
+                }
                 let curr_row = Math.round(this.sprite.getCenter().y / 25);
                 let next_col_value;
                 if (!this.sprite.flipX) {
@@ -315,10 +305,10 @@ export class monster_zombie {
         if (utils.tickElapsed(this.lastDashTick) >= 100) {
             if (this.sprite.flipX == false) {
                 this.sprite.setMaxVelocity(200, 10000);
-                this.sprite.setVelocity(150, -60);
+                this.sprite.setVelocity(120, -60);
             } else if (this.sprite.flipX == true) {
                 this.sprite.setMaxVelocity(200, 10000);
-                this.sprite.setVelocity(-150, -60);
+                this.sprite.setVelocity(-120, -60);
             }
             setTimeout(() => {
                 this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
@@ -332,7 +322,7 @@ export class monster_zombie {
     private checkAttack(): boolean {
         if (this.monsterToPlayerY <= 10 && this.monsterToPlayerY >= -10) {
             if ((this.sprite.flipX && this.monsterToPlayerX >= 0 && this.monsterToPlayerX <= 70) || (!this.sprite.flipX && this.monsterToPlayerX <= 0 && this.monsterToPlayerX >= -70)) {
-                if (this.canAttack && this.sprite.body.touching.down) {
+                if (this.sprite.body.touching.down) {
                     if (((this.lastAttackTick == undefined) || (utils.tickElapsed(this.lastAttackTick) >= 2500))) {
                         return true;
                     }
@@ -381,6 +371,16 @@ export class monster_zombie {
         }
         return false;
     }
+
+    private isStunEnd() {
+        if (utils.tickElapsed(this.lastStunTick) >= this.stunnedTime) {
+            this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
+            this.sprite.setVelocityX(1);
+            return true;
+        }
+        return false;
+    }
+
 
 
     private findPlayer() {

@@ -1,21 +1,25 @@
 import { background } from 'src/app/modules/background';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
-import { character_swordsman } from './character_sword/character_swordman';
-import { monsterControl } from 'src/app/modules/monsters/monsterControl';
+import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
+import { monsterControl } from 'src/app/modules/monsters/monster_control';
 import { IfStmt } from '@angular/compiler';
-import { crystal } from 'src/app/modules/monsters/crystal';
+import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monster_crystal';
+import { monsterType } from 'src/app/modules/monsters/monster_type';
 
 
 // Global variables
-let gMonsterArray: Array<monster_zombie> = [];
-let gColliderInfoArray: Array<collisonWithMonster> = [];
-let gCrystalArray: Array<crystal> = [];
+let gMonsterArray: Array<monsterType> = [];
+let gColliderInfoArray: Array<collisonInfo> = [];
+let gCrystalArray: Array<monster_crystal> = [];
 
-interface collisonWithMonster {
+type players = character_swordsman;
+
+interface collisonInfo {
     collider: Phaser.Physics.Arcade.Collider;
-    spriteClass: monster_zombie | character_swordsman;
+    spriteClass: monsterType | players;
     attackClass: any;
 }
+
 
 
 export class collision {
@@ -55,7 +59,7 @@ export class collision {
         for (let i = 0; i < gMonsterArray.length; i++) {
             let monstersprite = gMonsterArray[i].sprite;
             let collider = this.gameScene.physics.add.overlap(aAttack.sprite, monstersprite, this.playerAttackHitMonster);
-            let collision_info: collisonWithMonster = { collider: collider, spriteClass: gMonsterArray[i], attackClass: aAttack };
+            let collision_info: collisonInfo = { collider: collider, spriteClass: gMonsterArray[i], attackClass: aAttack };
             gColliderInfoArray.push(collision_info);
         }
     }
@@ -71,9 +75,20 @@ export class collision {
         }
     }
 
+    // playerAttackHitCrystal(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aCrystal: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
+    //     for (let i = 0; i < gColliderInfoArray.length; i++) {
+    //         if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
+    //             if(aCrystal == gColliderInfoArray[i].spriteClass.sprite){
+    //                 gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
+    //                 gColliderInfoArray[i].collider.destroy();
+    //             }
+    //         }
+    //     }
+    // }
+
     addMonsterAttack(aAttack: any){
         let collider = this.gameScene.physics.add.overlap(aAttack.sprite, this.player.sprite, this.monsterAttackHitPlayer);
-        let collision_info: collisonWithMonster = { collider: collider, spriteClass: this.player, attackClass: aAttack};
+        let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack};
         gColliderInfoArray.push(collision_info);
     }
 
@@ -93,8 +108,8 @@ export class collision {
         gMonsterArray = aMonsterControl.monsterArray;
     }
 
-    addCrystal(aCrystal: crystal){
-        this.gameScene.physics.add.overlap(aCrystal.sprite, this.player.sprite);
+    addCrystal(aCrystal: monster_crystal){
+        this.gameScene.physics.add.collider(aCrystal.sprite, this.player.sprite);
         gCrystalArray.push(aCrystal);
     }
 }

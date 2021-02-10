@@ -1,5 +1,5 @@
 import { collision } from 'src/app/modules/collision';
-import { character_swordsman } from 'src/app/modules/character_sword/character_swordman';
+import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
 
 
 
