@@ -55,6 +55,8 @@ export class character_swordsman {
         aScene.load.audio('ability_dash', './assets/audio/107589__qat__unsheath-sword.wav');
         aScene.load.audio('ability_shield', './assets/audio/249819__spookymodem__magic-smite.wav');
         aScene.load.audio('ability_slash', './assets/audio/446014__slavicmagic__wpn-3-generic.wav');
+        aScene.load.audio('character_damage', './assets/audio/116330__kwanba__ah.wav');
+        aScene.load.audio('character_dead', './assets/audio/239900__thesubber13__scream-1.wav');
 
 
         this.collision = aCollision;
@@ -74,6 +76,8 @@ export class character_swordsman {
         this.sprite = this.gameScene.physics.add.sprite(50, 500, "character_swordman").setScale(1.4, 1.4);
         this.sprite.setCollideWorldBounds(true);
         this.collision.addPlayer(this);
+        this.gameScene.sound.add('character_damage');
+        this.gameScene.sound.add('character_dead');
     }
 
     private sprite_machine() {
@@ -252,6 +256,12 @@ export class character_swordsman {
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
         this.interface.changeHealthBar(this.healthPoint);
+        if (this.healthPoint <= 0) {
+            this.gameScene.sound.play('character_dead');
+        }
+        else {
+            this.gameScene.sound.play('character_damage');
+        }
     }
 
     private is_idle() {
