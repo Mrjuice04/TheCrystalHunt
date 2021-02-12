@@ -24,6 +24,7 @@ export class character_sword_spin {
 
     create(aPosX: number, aPosY: number) {
         this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_shield").setScale(0.3, 0.3);
+        this.gameScene.sound.add('ability_shield');
         this.sprite.body.setAllowGravity(false);
         setTimeout(() => {
             this.collision.addPlayerAttack(this)
@@ -32,6 +33,7 @@ export class character_sword_spin {
 
     playAnims() {
         this.sprite.anims.play("ability_spin");
+        this.gameScene.sound.play('ability_spin');
     }
 
     hitMonster(aMonster: any) {

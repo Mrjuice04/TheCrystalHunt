@@ -23,6 +23,7 @@ export class character_sword_dash {
 
     create(aPosX: number, aPosY: number) {
         this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_dash");
+        this.gameScene.sound.add('ability_slash');
         this.sprite.body.setAllowGravity(false);
         this.sprite.setScale(1.2, 1.2);
         this.collision.addPlayerAttack(this)
@@ -32,6 +33,7 @@ export class character_sword_dash {
 
     playAnims() {
         this.sprite.anims.playReverse("ability_dash");
+        this.gameScene.sound.play('ability_dash');
     }
 
     hitMonster(aMonster: monster_zombie) {

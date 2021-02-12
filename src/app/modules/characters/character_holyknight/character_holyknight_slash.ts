@@ -24,12 +24,14 @@ export class character_sword_slash {
 
     public create(aPosX: number, aPosY: number) {
         this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_slash");
+        this.gameScene.sound.add('ability_slash');
         this.sprite.body.setAllowGravity(false);
         this.collision.addPlayerAttack(this)
     }
 
     public playAnims() {
         this.sprite.anims.play("ability_slash");
+        this.gameScene.sound.play('ability_slash');
     }
 
     public hitMonster(aMonster: monsterType) {
