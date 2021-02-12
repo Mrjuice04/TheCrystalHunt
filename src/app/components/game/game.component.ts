@@ -6,6 +6,7 @@ import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
 import { monsterControl } from 'src/app/modules/monsters/monster_control';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
+import { game_interface } from 'src/app/modules/interface';
 
 
 
@@ -50,6 +51,7 @@ class MainScene extends Phaser.Scene {
   keyS!: Phaser.Input.Keyboard.Key;
   keyD!: Phaser.Input.Keyboard.Key;
   keyQ!: Phaser.Input.Keyboard.Key;
+  interface!: game_interface;
 
   constructor() {
     super({ key: 'main' });
@@ -66,7 +68,8 @@ class MainScene extends Phaser.Scene {
 
     //load assets
     this.background = new background(this, this.collision);
-    this.player = new character_swordsman(this, this.collision);
+    this.interface = new game_interface(this);
+    this.player = new character_swordsman(this, this.collision, this.interface);
     this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray());
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
@@ -79,7 +82,7 @@ class MainScene extends Phaser.Scene {
     this.player.createAnims(this);
     this.player.create();
     this.background.createGrid();
-
+    this.interface.create();
   }
 
   update() {

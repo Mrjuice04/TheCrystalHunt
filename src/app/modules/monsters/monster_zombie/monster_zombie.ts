@@ -18,11 +18,12 @@ export class monster_zombie {
     maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
 
     // ticks
-    lastAttackTick!: number;
-    lastJumpTick!: number;
-    lastDashTick!: number;
-    lastStunTick!: number;
-    stunnedTime!: number;
+    private lastAttackTick!: number;
+    private lastJumpTick!: number;
+    private lastDashTick!: number;
+    private lastStunTick!: number;
+    private lastSearchTick!: number
+    private stunnedTime!: number;
 
 
 
@@ -190,16 +191,20 @@ export class monster_zombie {
                 }
             }
         } else {
+            if (((this.lastSearchTick == undefined) || (utils.tickElapsed(this.lastSearchTick) >= 5000))) {
+                this.findPlayer();
+                this.lastSearchTick = utils.getTick();
+            }
             if (!this.sprite.flipX) {
                 this.sprite.setAccelerationX(100);
             } else {
                 this.sprite.setAccelerationX(-100);
             }
-            if (this.sprite.getCenter().x <= 20) {
+            if (this.sprite.getCenter().x <= 40) {
                 this.sprite.setAccelerationX(100);
                 this.sprite.flipX = false;
             }
-            else if (this.sprite.getCenter().x >= 780) {
+            else if (this.sprite.getCenter().x >= 760) {
                 this.sprite.setAccelerationX(-100);
                 this.sprite.flipX = true;
             }

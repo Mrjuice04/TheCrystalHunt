@@ -35,24 +35,9 @@ export class monsterControl {
         this.monsterArray.push(monster);
     }
 
-    private addMonster_Crystal() {
+    private addMonster_Crystal(aPosX: number, aPosY: number) {
         let new_crystal = new monster_crystal(this.gameScene, this.collision);
-        let pos_x, pos_y;
-        let spawn_seed = Phaser.Math.FloorTo(Phaser.Math.FloatBetween(1, 4));
-        if (spawn_seed == 0) {
-            pos_x = 12.5;
-            pos_y = 87.5;
-        } else if (spawn_seed == 1) {
-            pos_x = 787.5;
-            pos_y = 87.5;
-        } else if (spawn_seed == 2) {
-            pos_x = 12.5;
-            pos_y = 537.5;
-        } else {
-            pos_x = 787.5;
-            pos_y = 537.5;
-        }
-        new_crystal.create(pos_x, pos_y);
+        new_crystal.create(aPosX, aPosY);
         this.monsterArray.push(new_crystal);
     }
 
@@ -79,7 +64,8 @@ export class monsterControl {
         }
 
         if (this.monsterArray.length <= 0) {
-            this.addMonster_Crystal();
+            this.addMonster_Crystal(12.5, 62.5);
+            this.addMonster_Crystal(787.5, 62.5);
         }
 
 

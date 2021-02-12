@@ -47,12 +47,6 @@ export class collision {
         for(let i = 0; i < this.brickArray.length; i++){
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
-        for(let i = 0; i < gMonsterArray.length; i++){
-            this.gameScene.physics.add.collider(aMonster.sprite, gMonsterArray[i].sprite);
-        }
-        for(let i = 0; i < gCrystalArray.length; i++){
-            this.gameScene.physics.add.collider(aMonster.sprite, gCrystalArray[i].sprite);
-        }
     }
 
     addPlayerAttack(aAttack: any) {
@@ -74,17 +68,6 @@ export class collision {
             }
         }
     }
-
-    // playerAttackHitCrystal(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aCrystal: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
-    //     for (let i = 0; i < gColliderInfoArray.length; i++) {
-    //         if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
-    //             if(aCrystal == gColliderInfoArray[i].spriteClass.sprite){
-    //                 gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
-    //                 gColliderInfoArray[i].collider.destroy();
-    //             }
-    //         }
-    //     }
-    // }
 
     addMonsterAttack(aAttack: any){
         let collider = this.gameScene.physics.add.overlap(aAttack.sprite, this.player.sprite, this.monsterAttackHitPlayer);

@@ -7,6 +7,7 @@ import { character_sword_dash } from 'src/app/modules/characters/character_holyk
 import { character_sword_spin } from 'src/app/modules/characters/character_holyknight/character_holyknight_spin'
 import { character_sword_slash } from 'src/app/modules/characters/character_holyknight/character_holyknight_slash'
 import { monsterControl } from "../../monsters/monster_control";
+import { game_interface } from 'src/app/modules/interface';
 
 
 export class character_swordsman {
@@ -18,18 +19,20 @@ export class character_swordsman {
     canAttack: boolean = true;
     canMove: boolean = true;
     private state_value: string = "idle";
+    private attackCounter: integer = 0;
     gameScene: Phaser.Scene;
+    interface: game_interface;
     attack!: character_sword_dash;
 
 
     //tick
-    lastDashTick!: number;
-    lastSpinTick!: number;
-    init_height!: number;
-    lastStunTick!: number;
-    lastJumpTick!: number;
-    lastSlashTick!: number;
-    stunnedTime!: number;
+    private lastDashTick!: number;
+    private lastSpinTick!: number;
+    private init_height!: number;
+    private lastStunTick!: number;
+    private lastJumpTick!: number;
+    private lastSlashTick!: number;
+    private stunnedTime!: number;
 
     //keys
     keyW!: Phaser.Input.Keyboard.Key;
@@ -41,7 +44,7 @@ export class character_swordsman {
 
     //character 
 
-    constructor(aScene: Phaser.Scene, aCollision: collision) {
+    constructor(aScene: Phaser.Scene, aCollision: collision, aInterface: game_interface) {
         aScene.load.spritesheet("character_swordman", "./assets/character_swordsman_test.png", { frameWidth: 15, frameHeight: 18 });
         aScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
         aScene.load.spritesheet("ability_spin", "./assets/effect.png", { frameWidth: 72, frameHeight: 72 });
@@ -49,6 +52,7 @@ export class character_swordsman {
 
         this.collision = aCollision;
         this.gameScene = aScene;
+        this.interface = aInterface;
 
         //keys
         this.keyW = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -102,7 +106,7 @@ export class character_swordsman {
                     this.state_value = "attacking_dash";
                 } else if (this.check_attack_Spin()) {
                     this.state_value = "attacking_spin_1";
-                } 
+                }
                 break;
             }
             case "jumping": {
@@ -183,7 +187,7 @@ export class character_swordsman {
 
         aScene.anims.create({
             key: "attack",
-            frames: aScene.anims.generateFrameNumbers("character_swordman", { start: 21, end: 24 }),
+            frames: aScene.anims.generateFrameNumbers("character_swordman", { start: 21, end: 25 }),
             frameRate: 10,
         });
 
@@ -223,6 +227,7 @@ export class character_swordsman {
 
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
+        this.interface.changeHealthBar(this.healthPoint);
     }
 
     private is_idle() {
@@ -296,14 +301,26 @@ export class character_swordsman {
 
     private do_attack_Slash() {
         this.lastSlashTick = utils.getTick();
-        this.sprite.setVelocityX(0);
+
+        this.sprite.anims.play("attack", true)
         this.attack = new character_sword_slash(this.gameScene, this.collision, this.monsterControl);
         let pos = this.sprite.getCenter();
+        if(!this.sprite.flipX){
+            pos.x += 10;
+            this.sprite.setVelocityX(20);
+        } else {
+            pos.x -= 10;
+            this.sprite.setVelocityX(-20);
+        }
         this.attack.create(pos.x, pos.y);
-        if (this.sprite.flipX){
+        if (this.attackCounter == 1){
             this.attack.sprite.flipX = true;
+            this.attackCounter = 0;
+        } else {
+            this.attackCounter ++;
         }
         this.attack.playAnims();
+
         setTimeout(() => {
             this.attack.destroy();
         }, 300)

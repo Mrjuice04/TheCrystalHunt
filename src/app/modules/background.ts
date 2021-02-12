@@ -29,13 +29,13 @@ export class background {
                 this.gridArray[i].push(0);[[[], []]]
             }
         }
-        for (let i = 4; i < 21; i += 3) {
+        for (let i = 3; i < 21; i += 3) {
 
             for (let j = 0; j < 2; j++) {
                 this.gridArray[i][j] = 1;
                 currentConnectingBrick += 1;
             }
-            for (let j = 2; j < 32; j++) {
+            for (let j = 2; j < 30; j++) {
                 let type = Math.floor((Math.random() * 2));
                 if (type == 1) {
                     if (currentConnectingBrick >= maxConnectingBrick) {
@@ -62,14 +62,22 @@ export class background {
                         currentConnectingBrick = 0;
                     }
                 }
+                if(j == 29 && this.gridArray[i][28] == 0){
+                    type = 0;
+                } else if (j == 29 && this.gridArray[i][28] == 1){
+                    type = 1;
+                }
                 this.gridArray[i][j] = type;
+            }
+            for (let j = 30; j < 32; j++) {
+                this.gridArray[i][j] = 1;
             }
 
             currentConnectingBrick = 0;
             currentConnectingSpace = 0;
         }
 
-        for (let i = 22; i < 24; i++) {
+        for (let i = 21; i < 24; i++) {
             for (let j = 0; j < 32; j++) {
                 let x = j * 25 + 12.5;
                 let y = i * 25 + 12.5;

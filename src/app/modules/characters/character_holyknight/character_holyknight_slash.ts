@@ -12,7 +12,7 @@ export class character_sword_slash {
     collision: collision;
     monsterControl: monsterControl;
     damage: number = 15;
-    stunTime: number = 0;
+    stunTime: number = 100;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
@@ -33,6 +33,7 @@ export class character_sword_slash {
 
     public hitMonster(aMonster: monsterType) {
         aMonster.isDamaged(this.damage);
+        aMonster.isStunned(this.stunTime);
         console.log("monster hit" + aMonster.healthPoint);
     }
 
