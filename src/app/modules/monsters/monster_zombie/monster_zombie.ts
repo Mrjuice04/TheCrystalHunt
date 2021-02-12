@@ -108,7 +108,7 @@ export class monster_zombie {
 
 
 
-//Character Functions
+    //Character Functions
     private machine() {
         switch (this.state_value) {
             case "idle": {
@@ -154,7 +154,10 @@ export class monster_zombie {
             case "dashing": {
                 if (this.doDash()) {
                     setTimeout(() => {
-                        this.state_value = "walking";
+                        if (this.sprite != undefined) {
+                            this.state_value = "walking";
+                            this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
+                        }
                     }, 200)
                 }
                 break;
@@ -315,9 +318,7 @@ export class monster_zombie {
                 this.sprite.setMaxVelocity(200, 10000);
                 this.sprite.setVelocity(-120, -60);
             }
-            setTimeout(() => {
-                this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
-            }, 400)
+
             return true;
         }
         return false;

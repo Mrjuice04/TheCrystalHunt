@@ -33,7 +33,7 @@ export class collision {
 
 
 
-    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithStaticBody){
+    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithStaticBody) {
         this.gameScene.physics.add.collider(this.player.sprite, aBrick);
         this.brickArray.push(aBrick);
     }
@@ -44,7 +44,7 @@ export class collision {
 
     addMonster(aMonster: monster_zombie) {
         this.gameScene.physics.add.collider(aMonster.sprite, this.player.sprite);
-        for(let i = 0; i < this.brickArray.length; i++){
+        for (let i = 0; i < this.brickArray.length; i++) {
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
     }
@@ -61,25 +61,32 @@ export class collision {
     playerAttackHitMonster(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aMonster: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
-                if(aMonster == gColliderInfoArray[i].spriteClass.sprite){
+                if (aMonster == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
-                    gColliderInfoArray[i].collider.destroy();
+                    if (gColliderInfoArray[i].attackClass.oneTimeCollision) {
+                        gColliderInfoArray[i].collider.destroy();
+                    } else {
+                        gColliderInfoArray[i].collider.active = false;
+                        setTimeout(() => {
+                            gColliderInfoArray[i].collider.active = true;
+                        }, 200)
+                    }
                 }
             }
         }
     }
 
-    addMonsterAttack(aAttack: any){
+    addMonsterAttack(aAttack: any) {
         let collider = this.gameScene.physics.add.overlap(aAttack.sprite, this.player.sprite, this.monsterAttackHitPlayer);
-        let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack};
+        let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack };
         gColliderInfoArray.push(collision_info);
     }
 
-    monsterAttackHitPlayer(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aPlayer: Phaser.Types.Physics.Arcade.ArcadeColliderType){
+    monsterAttackHitPlayer(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aPlayer: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
 
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
-                if(aPlayer == gColliderInfoArray[i].spriteClass.sprite){
+                if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
                     gColliderInfoArray[i].collider.destroy();
                 }
@@ -91,7 +98,7 @@ export class collision {
         gMonsterArray = aMonsterControl.monsterArray;
     }
 
-    addCrystal(aCrystal: monster_crystal){
+    addCrystal(aCrystal: monster_crystal) {
         this.gameScene.physics.add.collider(aCrystal.sprite, this.player.sprite);
         gCrystalArray.push(aCrystal);
     }

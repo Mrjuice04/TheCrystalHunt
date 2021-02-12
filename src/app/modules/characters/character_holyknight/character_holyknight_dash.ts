@@ -12,6 +12,7 @@ export class character_sword_dash {
     monsterControl: monsterControl;
     damage: number = 50;
     stunTime: number = 1400;
+    oneTimeCollision: boolean = true;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {

@@ -16,18 +16,20 @@ export class character_swordsman {
     inAnims: boolean = false;
     monsterControl!: monsterControl;
     healthPoint: number = 100;
+    energyPoint: number = 50;
     canAttack: boolean = true;
     canMove: boolean = true;
     private state_value: string = "idle";
     private attackCounter: integer = 0;
     gameScene: Phaser.Scene;
     interface: game_interface;
-    attack!: character_sword_dash;
+    private attack!: character_sword_dash;
+    shield!: character_sword_spin;
 
 
     //tick
     private lastDashTick!: number;
-    private lastSpinTick!: number;
+    private lastSpinTick: number = 0;
     private init_height!: number;
     private lastStunTick!: number;
     private lastJumpTick!: number;
@@ -49,6 +51,8 @@ export class character_swordsman {
         aScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
         aScene.load.spritesheet("ability_spin", "./assets/effect.png", { frameWidth: 72, frameHeight: 72 });
         aScene.load.spritesheet("ability_slash", "./assets/sword_effect_2.png", { frameWidth: 31, frameHeight: 24 });
+        aScene.load.image("ability_shield", "./assets/circle.png");
+
 
         this.collision = aCollision;
         this.gameScene = aScene;
@@ -69,7 +73,7 @@ export class character_swordsman {
         this.collision.addPlayer(this);
     }
 
-    machine() {
+    private sprite_machine() {
         switch (this.state_value) {
             case "idle": {
                 if (this.check_walking()) {
@@ -83,8 +87,8 @@ export class character_swordsman {
                 } else if (this.check_attack_Dash()) {
                     this.do_attack_Dash_1();
                     this.state_value = "attacking_dash";
-                } else if (this.check_attack_Spin()) {
-                    this.state_value = "attacking_spin_1";
+                } else if (this.check_attack_Shield()) {
+                    this.do_attack_Shield();
                 } else {
                     this.is_idle();
                 }
@@ -104,8 +108,8 @@ export class character_swordsman {
                 } else if (this.check_attack_Dash()) {
                     this.do_attack_Dash_1();
                     this.state_value = "attacking_dash";
-                } else if (this.check_attack_Spin()) {
-                    this.state_value = "attacking_spin_1";
+                } else if (this.check_attack_Shield()) {
+                    this.do_attack_Shield();
                 }
                 break;
             }
@@ -116,7 +120,7 @@ export class character_swordsman {
                     this.state_value = "doubleJumping";
                 } else if (this.is_jump_end()) {
                     this.state_value = "idle"
-                } else if (this.check_attack_Spin()) {
+                } else if (this.check_attack_Shield()) {
                     this.state_value = "attacking_spin_1";
                 }
                 break;
@@ -134,13 +138,15 @@ export class character_swordsman {
                 }
                 break;
             }
-            case "attacking_spin_1": {
-                if (this.do_attack_Spin_1()) {
-                    this.state_value = "attacking_spin_2"
+            case "attacking_spin": {
+                this.do_walking();
+                if (this.is_attack_Spin_end()) {
+                    this.state_value = "idle"
                 }
                 break;
             }
             case "attacking_spin_2": {
+                this.do_walking();
                 if (this.is_attack_Spin_end()) {
                     this.state_value = "idle"
                 }
@@ -166,8 +172,23 @@ export class character_swordsman {
         }
     }
 
-    update() {
-        this.machine();
+    private slash_machine(){
+        
+    }
+
+    private shield_machine(){
+
+    }
+
+    private charge_machine(){
+        
+    }
+
+    public update() {
+        this.sprite_machine();
+        if (this.lastSpinTick != 0 && (utils.tickElapsed(this.lastSpinTick) >= 310)) {
+            this.shield.sprite.setPosition(this.sprite.getCenter().x, this.sprite.getCenter().y);
+        }
     }
 
     public createAnims(aScene: Phaser.Scene) {
@@ -305,7 +326,7 @@ export class character_swordsman {
         this.sprite.anims.play("attack", true)
         this.attack = new character_sword_slash(this.gameScene, this.collision, this.monsterControl);
         let pos = this.sprite.getCenter();
-        if(!this.sprite.flipX){
+        if (!this.sprite.flipX) {
             pos.x += 10;
             this.sprite.setVelocityX(20);
         } else {
@@ -313,11 +334,11 @@ export class character_swordsman {
             this.sprite.setVelocityX(-20);
         }
         this.attack.create(pos.x, pos.y);
-        if (this.attackCounter == 1){
+        if (this.attackCounter == 1) {
             this.attack.sprite.flipX = true;
             this.attackCounter = 0;
         } else {
-            this.attackCounter ++;
+            this.attackCounter++;
         }
         this.attack.playAnims();
 
@@ -389,37 +410,34 @@ export class character_swordsman {
         return false;
     }
 
-    private check_attack_Spin() {
-        if (((this.lastSpinTick == undefined) || (utils.tickElapsed(this.lastSpinTick) >= 3000)) && this.keyW.isDown) {
-            this.lastSpinTick = utils.getTick();
+    private check_attack_Shield() {
+        if ((this.lastSpinTick == 0) && this.keyW.isDown) {
             return true;
         }
         return false;
     }
 
-    private do_attack_Spin_1() {
-        if ((utils.tickElapsed(this.lastSpinTick) >= 300)) {
-            this.sprite.setVelocity(0, 0);
-            this.sprite.body.setAllowGravity(false);
-
+    private do_attack_Shield() {
+        this.lastSpinTick = utils.getTick();
+        console.log("doAttackSpin")
+        this.sprite.setVelocity(0, 0);
+        setTimeout(() => {
             let pos_vector = this.sprite.getCenter();
             let effect = new character_sword_spin(this.gameScene, this.collision, this.monsterControl);
             effect.create(pos_vector.x, pos_vector.y);
-            effect.sprite.anims.play("ability_spin");
-
-            console.log("doSpin")
+            this.shield = effect;
             setTimeout(() => {
                 effect.destroy();
-            }, 700)
-
-            return true;
-        }
-        return false;
+                this.lastSpinTick = 0;
+            }, 3000)
+        }, 300)
     }
 
     private is_attack_Spin_end() {
-        this.sprite.setVelocity(0, 0);
-        if ((utils.tickElapsed(this.lastSpinTick) >= 1200)) {
+        if ((utils.tickElapsed(this.lastSpinTick) >= 310)) {
+            this.shield.sprite.setPosition(this.sprite.getCenter().x, this.sprite.getCenter().y);
+        }
+        if ((utils.tickElapsed(this.lastSpinTick) >= 3300)) {
             return true;
         }
         return false;

@@ -20,4 +20,12 @@ export class game_interface{
         let new_width = width * ratio;
         this.healthBar.setCrop(0, 0, new_width, height);
     }
+
+    public changeEnergyBar(aHealthPoint: number){
+        let width = this.healthBar.width;
+        let height = this.healthBar.height;
+        let ratio = aHealthPoint / 100;
+        let new_width = width * ratio;
+        this.healthBar.setCrop(0, 0, new_width, height);
+    }
 }

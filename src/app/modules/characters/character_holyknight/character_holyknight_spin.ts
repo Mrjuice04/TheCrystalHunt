@@ -11,6 +11,9 @@ export class character_sword_spin {
     collision: collision;
     monsterControl: monsterControl;
     damage: number = 20;
+    stunTime: number = 0;
+    oneTimeCollision: boolean = false;
+
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
@@ -20,7 +23,7 @@ export class character_sword_spin {
     }
 
     create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_spin");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_shield").setScale(0.3, 0.3);
         this.sprite.body.setAllowGravity(false);
         setTimeout(() => {
             this.collision.addPlayerAttack(this)

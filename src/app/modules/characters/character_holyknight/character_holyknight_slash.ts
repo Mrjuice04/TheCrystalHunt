@@ -13,6 +13,7 @@ export class character_sword_slash {
     monsterControl: monsterControl;
     damage: number = 15;
     stunTime: number = 100;
+    oneTimeCollision: boolean = true;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
