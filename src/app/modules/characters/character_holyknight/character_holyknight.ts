@@ -46,6 +46,9 @@ export class character_swordsman {
         aScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
         aScene.load.spritesheet("ability_spin", "./assets/effect.png", { frameWidth: 72, frameHeight: 72 });
         aScene.load.spritesheet("ability_slash", "./assets/sword_effect_2.png", { frameWidth: 31, frameHeight: 24 });
+        aScene.load.audio('ability_dash', './assets/audio/107589__qat__unsheath-sword.wav');
+        aScene.load.audio('ability_spin', './assets/audio/249819__spookymodem__magic-smite.wav');
+        aScene.load.audio('ability_slash', './assets/audio/446014__slavicmagic__wpn-3-generic.wav');
 
         this.collision = aCollision;
         this.gameScene = aScene;
