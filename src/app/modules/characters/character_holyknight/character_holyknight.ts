@@ -60,7 +60,7 @@ export class character_swordsman {
         this.gameScene = aScene;
         this.interface = aInterface;
 
-        this.gameScene.load.spritesheet("character_swordman", "./assets/character_swordsman_test.png", { frameWidth: 15, frameHeight: 18 });
+        this.gameScene.load.spritesheet("character_swordman", "./assets/character_swordsman_test.png", { frameWidth: 30, frameHeight: 36 });
         this.gameScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
         this.gameScene.load.spritesheet("ability_slash", "./assets/sword_effect_2.png", { frameWidth: 31, frameHeight: 24 });
         this.gameScene.load.image("ability_shield", "./assets/circle.png");
@@ -72,6 +72,7 @@ export class character_swordsman {
         this.gameScene.load.audio('character_dead', './assets/audio/239900__thesubber13__scream-1.wav');
 
         //icons
+        this.gameScene.load.image('ability1', './assets/chargeIcon.png');
 
         //keys
         this.keyW = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -87,7 +88,7 @@ export class character_swordsman {
     }
 
     public create() {
-        this.sprite = this.gameScene.physics.add.sprite(50, 500, "character_swordman").setScale(1.4, 1.4);
+        this.sprite = this.gameScene.physics.add.sprite(50, 500, "character_swordman").setScale(0.7, 0.7);
         this.sprite.setCollideWorldBounds(true);
         this.collision.addPlayer(this);
         this.gameScene.sound.add('character_damage');
@@ -181,7 +182,7 @@ export class character_swordsman {
                     this.spriteStateValue = "attacking";
                     this.shieldStateValue = "start";
                 } else {
-                    this.is_idle();
+                    this.isIdle();
                 }
                 break;
             }
@@ -200,13 +201,13 @@ export class character_swordsman {
                 } else if (this.checkShield()) {
                     this.spriteStateValue = "attacking";
                     this.shieldStateValue = "start";
-                } else if (!this.do_walking()) {
+                } else if (!this.doWalking()) {
                     this.spriteStateValue = "idle";
                 }
                 break;
             }
             case "jumping": {
-                this.do_walking();
+                this.doWalking();
                 if (this.check_doubleJump()) {
                     this.do_doubleJump();
                     this.spriteStateValue = "doubleJumping";
@@ -218,7 +219,7 @@ export class character_swordsman {
                 break;
             }
             case "doubleJumping": {
-                this.do_walking();
+                this.doWalking();
                 if (this.is_jump_end()) {
                     this.spriteStateValue = "idle"
                 }
@@ -253,12 +254,12 @@ export class character_swordsman {
                 this.sprite.setVelocityX(0);
                 this.doSlash();
                 this.createSlashEffect();
-                this.spriteStateValue = "idle"
+                this.spriteStateValue = "idle";
                 this.slashStateValue = "playing";
                 break;
             }
             case "playing": {
-                this.updateSlashEffect()
+                this.updateSlashEffect();
                 if (this.checkSlashEnd()) {
                     this.slashStateValue = "idle";
                 }
@@ -322,10 +323,12 @@ export class character_swordsman {
         }
     }
 
-    private is_idle() {
+    private isIdle() {
         this.sprite.setVelocityX(0);
         this.sprite.body.setAllowGravity(true);
-        this.sprite.anims.play("idle", true);
+        if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle") {
+            this.sprite.anims.play("idle", true);
+        }
     }
 
     private checkWalking() {
@@ -336,16 +339,20 @@ export class character_swordsman {
         return false;
     }
 
-    private do_walking() {
+    private doWalking() {
         if (this.cursors.left.isDown) {
             this.sprite.flipX = true;
             this.sprite.setVelocityX(-100);
-            this.sprite.anims.play("move", true);
+            if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle") {
+                this.sprite.anims.play("move", true);
+            }
             return true;
         } else if (this.cursors.right.isDown) {
             this.sprite.flipX = false;
             this.sprite.setVelocityX(100);
-            this.sprite.anims.play("move", true);
+            if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle") {
+                this.sprite.anims.play("move", true);
+            }
             return true;
         } else {
             this.sprite.setVelocityX(0);
@@ -403,16 +410,16 @@ export class character_swordsman {
         this.slashEffect = new character_sword_slash(this.gameScene, this.collision, this.monsterControl);
         let pos = this.sprite.getCenter();
         if (!this.sprite.flipX) {
-            pos.x += 10;
+            pos.x += 15;
         } else {
-            pos.x -= 10;
+            pos.x -= 15;
         }
         this.slashEffect.create(pos.x, pos.y);
 
         if (this.attackCounter % 2 == 0) {
             this.slashEffect.sprite.flipX = true;
-        } 
-            
+        }
+
         this.attackCounter++;
         this.slashEffect.playAnims();
     }
@@ -451,9 +458,9 @@ export class character_swordsman {
     private doCharge() {
         if ((utils.tickElapsed(this.lastDashTick) >= 410)) {
             if (!this.sprite.flipX) {
-                this.sprite.setVelocityX(200);
+                this.sprite.setVelocityX(300);
             } else {
-                this.sprite.setVelocityX(-200);
+                this.sprite.setVelocityX(-300);
             }
         }
     }

@@ -9,6 +9,8 @@ export class monster_crystal{
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
     lastSpawnTick!: number;
     canSpawn: boolean = false;
+    destoryed: boolean = false;
+
 
     constructor (aScene: Phaser.Scene, aCollision: collision){
         this.gameScene = aScene;
@@ -49,5 +51,9 @@ export class monster_crystal{
         }
     }
     
+    public destroy(){
+        this.sprite.destroy();
+    }
+
     
 }

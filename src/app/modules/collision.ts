@@ -69,7 +69,7 @@ export class collision {
                         gColliderInfoArray[i].collider.active = false;
                         setTimeout(() => {
                             gColliderInfoArray[i].collider.active = true;
-                        }, 200)
+                        }, 300)
                     }
                 }
             }

@@ -59,7 +59,7 @@ export class monsterControl {
             }
             //life check
             if (curr_monster.healthPoint <= 0) {
-                curr_monster.sprite.destroy();
+                curr_monster.destroy();
                 this.monsterArray.splice(this.monsterArray.indexOf(curr_monster), 1);
                 this.scoreGained += 100;
             }
