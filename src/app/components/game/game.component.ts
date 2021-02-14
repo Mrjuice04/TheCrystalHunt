@@ -52,6 +52,7 @@ class MainScene extends Phaser.Scene {
   keyD!: Phaser.Input.Keyboard.Key;
   keyQ!: Phaser.Input.Keyboard.Key;
   interface!: game_interface;
+  score: number = 0;
 
   constructor() {
     super({ key: 'main' });
@@ -79,7 +80,7 @@ class MainScene extends Phaser.Scene {
   create() {
     this.add.sprite(400, 300, "sky");
     // this.background.create(this);
-    this.player.createAnims(this);
+    this.player.createAnims();
     this.player.create();
     this.background.createGrid();
     this.interface.create();
@@ -89,6 +90,8 @@ class MainScene extends Phaser.Scene {
     //key input
     this.player.update();
     this.monsterControl.update(this.player);
+    this.score += this.monsterControl.getScore();
+    this.interface.changeScore(this.score);
   }
 
 

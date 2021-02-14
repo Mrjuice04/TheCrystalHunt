@@ -13,6 +13,7 @@ export class character_sword_slash {
     monsterControl: monsterControl;
     damage: number = 15;
     stunTime: number = 100;
+    energyGained: number = 0;
     oneTimeCollision: boolean = true;
 
 
@@ -38,6 +39,13 @@ export class character_sword_slash {
         aMonster.isDamaged(this.damage);
         aMonster.isStunned(this.stunTime);
         console.log("monster hit" + aMonster.healthPoint);
+        this.energyGained += 4;
+    }
+
+    public getEnergy(){
+        let energy = this.energyGained;
+        this.energyGained = 0;
+        return energy;
     }
 
 

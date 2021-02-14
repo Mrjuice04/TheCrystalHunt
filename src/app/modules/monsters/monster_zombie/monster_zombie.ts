@@ -41,7 +41,6 @@ export class monster_zombie {
         aScene.load.audio('monster1_damage3', './assets/audio/76972__michel88__pains.wav');
         aScene.load.audio('monster1_dead', './assets/audio/489901__nicknamelarry__scary-monster-roar-2.wav');
         aScene.load.audio('monster1_attack', './assets/audio/204610__pikachu09__monster-snarl-3.wav');
-
     }
 
     //General Public Function
@@ -50,6 +49,7 @@ export class monster_zombie {
         this.sprite.setCollideWorldBounds(true);
         this.sprite.setVelocityX(-100);
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
+        this.sprite.setPushable(false);
         this.sprite.anims.play("monster.move");
         this.gameScene.sound.add('monster1_damage1');
         this.gameScene.sound.add('monster1_damage2');
@@ -72,11 +72,11 @@ export class monster_zombie {
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
         if (this.healthPoint <= 0) {
-            this.gameScene.sound.play('monster1_dead');    
+            this.gameScene.sound.play('monster1_dead');
         }
         else {
-            let rand_sound = Math.floor(Math.random() * 3) + 1;        
-            this.gameScene.sound.play(`monster1_damage${rand_sound}`);    
+            let rand_sound = Math.floor(Math.random() * 3) + 1;
+            this.gameScene.sound.play(`monster1_damage${rand_sound}`);
         }
     }
 
@@ -96,7 +96,11 @@ export class monster_zombie {
         this.stunnedTime = aTime;
         this.state_value = "stunned";
         if (aStun) {
-            this.isStunned(aStunTime);
+            setTimeout(() => {
+                if (this.sprite) {
+                    this.isStunned(aStunTime);
+                }
+            }, aTime)
         }
     }
 
@@ -386,7 +390,7 @@ export class monster_zombie {
                 attack.sprite.flipX = true;
                 attack.playAnims();
             }
-            this.gameScene.sound.play('monster1_attack');    
+            this.gameScene.sound.play('monster1_attack');
             setTimeout(() => {
                 attack.destroy();
             }, 400)
