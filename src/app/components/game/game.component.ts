@@ -53,6 +53,7 @@ class MainScene extends Phaser.Scene {
   keyQ!: Phaser.Input.Keyboard.Key;
   interface!: game_interface;
   score: number = 0;
+  bgm!: Phaser.Sound.BaseSound;
 
   constructor() {
     super({ key: 'main' });
@@ -61,11 +62,11 @@ class MainScene extends Phaser.Scene {
   preload() {
     //key input
     this.input.keyboard.enabled = true;
-    this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-    this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-    this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    // this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    // this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    // this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    // this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+    // this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
 
     //load assets
     this.background = new background(this, this.collision);
@@ -75,6 +76,7 @@ class MainScene extends Phaser.Scene {
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
     this.load.image("sky", "./assets/sky.png");
+    this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
   }
 
   create() {
@@ -84,6 +86,8 @@ class MainScene extends Phaser.Scene {
     this.player.create();
     this.background.createGrid();
     this.interface.create();
+    this.sound.add("bgm");
+    this.sound.play("bgm" , {loop: true});
   }
 
   update() {

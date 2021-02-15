@@ -64,12 +64,13 @@ export class character_swordsman {
         this.gameScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
         this.gameScene.load.spritesheet("ability_slash", "./assets/sword_effect_2.png", { frameWidth: 31, frameHeight: 24 });
         this.gameScene.load.image("ability_shield", "./assets/circle.png");
-        this.gameScene.load.audio('ability_dash', './assets/audio/107589__qat__unsheath-sword.wav');
+        this.gameScene.load.audio('ability_dash', './assets/audio/metal_015.wav');
         this.gameScene.load.audio('ability_shield', './assets/audio/249819__spookymodem__magic-smite.wav');
-        this.gameScene.load.audio('ability_shield_2', './assets/audio/church_choir.wav');
-        this.gameScene.load.audio('ability_slash', './assets/audio/446014__slavicmagic__wpn-3-generic.wav');
-        this.gameScene.load.audio('character_damage', './assets/audio/116330__kwanba__ah.wav');
-        this.gameScene.load.audio('character_dead', './assets/audio/239900__thesubber13__scream-1.wav');
+        this.gameScene.load.audio('ability_shield_2', './assets/audio/magic_063.wav');
+        this.gameScene.load.audio('ability_slash', './assets/audio/hit-deep_034.wav');
+        this.gameScene.load.audio('ability_slash_2', './assets/audio/metal_016.wav');
+        this.gameScene.load.audio('character_damage', './assets/audio/hurt_007.wav');
+        this.gameScene.load.audio('character_dead', './assets/audio/hurt_022.wav');
 
         //icons
         this.gameScene.load.image('ability1', './assets/chargeIcon.png');
@@ -101,6 +102,7 @@ export class character_swordsman {
         this.chargeMachine();
         this.shieldMachine();
         this.sprite_machine();
+        this.limitValues();
     }
 
     public createAnims() {
@@ -152,7 +154,9 @@ export class character_swordsman {
             this.gameScene.sound.play('character_dead');
         }
         else {
-            this.gameScene.sound.play('character_damage');
+            setTimeout(() => {
+                this.gameScene.sound.play('character_damage');
+            }, 200)
         }
     }
 
@@ -395,7 +399,7 @@ export class character_swordsman {
 
     //basic Attack
     private checkSlash() {
-        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= 600)) && this.keyA.isDown) {
+        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= 500)) && this.keyA.isDown) {
             this.lastSlashTick = utils.getTick();
             return true;
         }
@@ -433,7 +437,6 @@ export class character_swordsman {
         }
         this.energyPoint += this.slashEffect.getEnergy();
         this.interface.changeEnergyBar(this.energyPoint);
-        console.log(this.energyPoint);
     }
 
     private checkSlashEnd(): boolean {
@@ -537,6 +540,18 @@ export class character_swordsman {
             return true;
         }
         return false;
+    }
+
+    private limitValues() {
+        if (this.energyPoint <= 0){
+            this.energyPoint = 0;
+        } else if (this.energyPoint >= 100){
+            this.energyPoint = 100;
+        }
+
+        if (this.healthPoint >= 100){
+            this.healthPoint = 100;
+        }
     }
 
 

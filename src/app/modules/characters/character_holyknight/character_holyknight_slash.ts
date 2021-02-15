@@ -33,6 +33,8 @@ export class character_sword_slash {
     public playAnims() {
         this.sprite.anims.play("ability_slash");
         this.gameScene.sound.play('ability_slash');
+        this.gameScene.sound.play('ability_slash_2');
+
     }
 
     public hitMonster(aMonster: monsterType) {

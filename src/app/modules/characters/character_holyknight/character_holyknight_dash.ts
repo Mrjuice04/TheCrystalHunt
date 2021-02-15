@@ -35,7 +35,7 @@ export class character_sword_dash {
 
     playAnims() {
         this.sprite.anims.playReverse("ability_dash");
-        // this.gameScene.sound.play('ability_dash');
+        this.gameScene.sound.play('ability_dash');
     }
 
     hitMonster(aMonster: monster_zombie) {
