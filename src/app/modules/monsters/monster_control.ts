@@ -16,6 +16,7 @@ export class monsterControl {
     anims1Created: boolean = false;
     gridArray: integer[][];
     nextMonsterAmount: number = 1;
+    scoreGained: number = 0;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
@@ -58,8 +59,9 @@ export class monsterControl {
             }
             //life check
             if (curr_monster.healthPoint <= 0) {
-                curr_monster.sprite.destroy();
+                curr_monster.destroy();
                 this.monsterArray.splice(this.monsterArray.indexOf(curr_monster), 1);
+                this.scoreGained += 100;
             }
         }
 
@@ -67,8 +69,11 @@ export class monsterControl {
             this.addMonster_Crystal(12.5, 62.5);
             this.addMonster_Crystal(787.5, 62.5);
         }
+    }
 
-
-
+    public getScore() {
+        let score = this.scoreGained;
+        this.scoreGained = 0;
+        return score;
     }
 }

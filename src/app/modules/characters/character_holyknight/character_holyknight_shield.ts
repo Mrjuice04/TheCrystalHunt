@@ -5,7 +5,7 @@ import { monsterControl } from "src/app/modules/monsters/monster_control";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 
 
-export class character_sword_spin {
+export class character_sword_shield {
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     collision: collision;
@@ -27,13 +27,11 @@ export class character_sword_spin {
         this.gameScene.sound.add('ability_shield');
         this.sprite.body.setAllowGravity(false);
         this.playAnims();
-        setTimeout(() => {
-            this.collision.addPlayerAttack(this)
-        }, 200)
+        this.collision.addPlayerAttack(this)
     }
 
     playAnims() {
-        this.gameScene.sound.play('ability_shield');
+        this.gameScene.sound.play('ability_shield_2');
     }
 
     hitMonster(aMonster: any) {

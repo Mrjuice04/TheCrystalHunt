@@ -10,9 +10,9 @@ export class character_sword_dash {
     gameScene: Phaser.Scene;
     collision: collision;
     monsterControl: monsterControl;
-    damage: number = 50;
-    stunTime: number = 1400;
-    oneTimeCollision: boolean = true;
+    damage: number = 25;
+    stunTime: number = 500;
+    oneTimeCollision: boolean = false;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
@@ -23,12 +23,14 @@ export class character_sword_dash {
 
     create(aPosX: number, aPosY: number) {
         this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_dash");
-        this.gameScene.sound.add('ability_slash');
         this.sprite.body.setAllowGravity(false);
         this.sprite.setScale(1.2, 1.2);
-        this.collision.addPlayerAttack(this)
-
-
+        this.collision.addPlayerAttack(this);
+        setTimeout(() =>{
+            if(this.sprite){
+                this.destroy();
+            }
+        },4000)
     }
 
     playAnims() {
@@ -39,7 +41,13 @@ export class character_sword_dash {
     hitMonster(aMonster: monster_zombie) {
         aMonster.isDamaged(this.damage);
         console.log("monster hit" + aMonster.healthPoint);
-        aMonster.isKnockbacked(0, -200, 400, true, this.stunTime);
+        let velocityX;
+        if (!this.sprite.flipX){
+            velocityX = 200;
+        } else {
+            velocityX = -200;
+        }
+        aMonster.isKnockbacked(velocityX, -200, 1000, true, this.stunTime);
     }
 
 

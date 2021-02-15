@@ -16,6 +16,7 @@ export class monster_zombie {
     state_value: string = "walking";
     jump_target!: number;
     maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
+    destoryed: boolean = false;
 
     // ticks
     private lastAttackTick!: number;
@@ -34,22 +35,22 @@ export class monster_zombie {
     }
 
     static loadSprite(aScene: Phaser.Scene) {
-        aScene.load.spritesheet("monster1", "./assets/monster_zombie.png", { frameWidth: 13, frameHeight: 16 });
+        aScene.load.spritesheet("monster1", "./assets/monster_zombie.png", { frameWidth: 26, frameHeight: 32 });
         aScene.load.spritesheet("bite", "./assets/monster_zombie_bite.png", { frameWidth: 11, frameHeight: 11 });
-        aScene.load.audio('monster1_damage1', './assets/audio/555421__tonsil5__zombie-pain-4.wav');
+        aScene.load.audio('monster1_damage1', './assets/audio/hurt_222.wav');
         aScene.load.audio('monster1_damage2', './assets/audio/76967__michel88__paine.wav');
         aScene.load.audio('monster1_damage3', './assets/audio/76972__michel88__pains.wav');
-        aScene.load.audio('monster1_dead', './assets/audio/489901__nicknamelarry__scary-monster-roar-2.wav');
-        aScene.load.audio('monster1_attack', './assets/audio/204610__pikachu09__monster-snarl-3.wav');
-
+        aScene.load.audio('monster1_dead', './assets/audio/hurt_251.wav');
+        aScene.load.audio('monster1_attack', './assets/audio/hit_004.wav');
     }
 
     //General Public Function
     public create(aScene: Phaser.Scene, pos_x: number, pos_y: number) {
-        this.sprite = aScene.physics.add.sprite(pos_x, pos_y, "monster1").setScale(1.4, 1.4);
+        this.sprite = aScene.physics.add.sprite(pos_x, pos_y, "monster1").setScale(0.75, 0.75);
         this.sprite.setCollideWorldBounds(true);
         this.sprite.setVelocityX(-100);
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
+        this.sprite.setPushable(false);
         this.sprite.anims.play("monster.move");
         this.gameScene.sound.add('monster1_damage1');
         this.gameScene.sound.add('monster1_damage2');
@@ -72,15 +73,18 @@ export class monster_zombie {
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
         if (this.healthPoint <= 0) {
-            this.gameScene.sound.play('monster1_dead');    
+            this.gameScene.sound.play('monster1_dead');
         }
         else {
-            let rand_sound = Math.floor(Math.random() * 3) + 1;        
-            this.gameScene.sound.play(`monster1_damage${rand_sound}`);    
+            let rand_sound = Math.floor(Math.random() * 3) + 1;
+            this.gameScene.sound.play(`monster1_damage1`);
         }
     }
 
     public isStunned(aTime: number) {
+        if (this.destoryed) {
+            return;
+        }
         this.sprite.setAccelerationX(0);
         this.sprite.setVelocityX(0);
         this.lastStunTick = utils.getTick();
@@ -89,6 +93,9 @@ export class monster_zombie {
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
+        if (this.destoryed) {
+            return;
+        }
         this.sprite.setAccelerationX(0);
         this.sprite.setMaxVelocity(200, 10000);
         this.sprite.setVelocity(aVelocityX, aVelocityY);
@@ -96,7 +103,11 @@ export class monster_zombie {
         this.stunnedTime = aTime;
         this.state_value = "stunned";
         if (aStun) {
-            this.isStunned(aStunTime);
+            setTimeout(() => {
+                if (this.sprite) {
+                    this.isStunned(aStunTime);
+                }
+            }, aTime)
         }
     }
 
@@ -172,7 +183,7 @@ export class monster_zombie {
             case "dashing": {
                 if (this.doDash()) {
                     setTimeout(() => {
-                        if (this.sprite != undefined) {
+                        if (!this.destoryed) {
                             this.state_value = "walking";
                             this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
                         }
@@ -241,7 +252,7 @@ export class monster_zombie {
                 } else {
                     curr_col = Math.round((this.sprite.getCenter().x) / 25);
                 }
-                let curr_row = Math.round(this.sprite.getCenter().y / 25);
+                let curr_row = Math.round((this.sprite.getCenter().y + 10) / 25);
                 let above_value = this.gridArray[curr_row - 3][curr_col];
                 let next_above_value_1;
                 if (!this.sprite.flipX) {
@@ -310,7 +321,7 @@ export class monster_zombie {
                 } else {
                     curr_col = Math.round((this.sprite.getCenter().x) / 25);
                 }
-                let curr_row = Math.round(this.sprite.getCenter().y / 25);
+                let curr_row = Math.round((this.sprite.getCenter().y + 10) / 25);
                 let next_col_value;
                 if (!this.sprite.flipX) {
                     next_col_value = this.gridArray[curr_row][curr_col + 1];
@@ -386,7 +397,7 @@ export class monster_zombie {
                 attack.sprite.flipX = true;
                 attack.playAnims();
             }
-            this.gameScene.sound.play('monster1_attack');    
+            this.gameScene.sound.play("monster1_attack");
             setTimeout(() => {
                 attack.destroy();
             }, 400)
@@ -420,6 +431,10 @@ export class monster_zombie {
         }
     }
 
+    public destroy() {
+        this.sprite.destroy();
+        this.destoryed = true;
+    }
 
 
 }
