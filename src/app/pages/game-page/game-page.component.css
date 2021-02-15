@@ -1,0 +1,11 @@
+.flex-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.title-text {
+    font-size: xx-large;
+    font-weight: bold;
+    color: white;
+}

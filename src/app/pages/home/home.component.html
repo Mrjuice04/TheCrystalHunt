@@ -1,6 +1,18 @@
-<div class="flex-box">
+<div class="flex-row">
     <div class="title-text">~ The Crystal Hunt ~</div>
 </div>
-<div class="flex-box">
-    <app-game></app-game>
+<div class="flex-row">
+    <div class="container">
+        <img class="menu-image" src="../../../assets/main_menu_bg.svg" />
+
+        <div class="button-box">
+            <div class="flex-row">
+                <div class="flex-col">
+                    <a class="menu-button" (click)="onStartClicked()">Start</a>
+                    <a class="menu-button" (click)="onAboutClicked()">About</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
