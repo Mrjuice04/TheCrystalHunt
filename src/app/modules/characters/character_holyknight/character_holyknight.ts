@@ -16,10 +16,11 @@ export class character_swordsman {
     collision: collision;
     inAnims: boolean = false;
     monsterControl!: monsterControl;
-    healthPoint: number = 100;
+    healthPoint: number = 10;
     energyPoint: number = 50;
     canAttack: boolean = true;
     canMove: boolean = true;
+    isDead: boolean = false;
 
     private attackCounter: integer = 0;
     gameScene: Phaser.Scene;
@@ -98,11 +99,17 @@ export class character_swordsman {
 
 
     public update() {
-        this.slashMachine();
-        this.chargeMachine();
-        this.shieldMachine();
-        this.sprite_machine();
-        this.limitValues();
+        if(!this.isDead){
+            this.slashMachine();
+            this.chargeMachine();
+            this.shieldMachine();
+            this.sprite_machine();
+            this.limitValues();
+        }
+    }
+
+    public checkDeath(){
+        return this.isDead;
     }
 
     public createAnims() {
@@ -119,6 +126,12 @@ export class character_swordsman {
             frameRate: 10,
             repeat: -1,
         });
+
+        this.gameScene.anims.create({
+            key: "die",
+            frames: this.gameScene.anims.generateFrameNumbers("character_swordman", { start: 0, end: 4 }),
+            frameRate: 10,
+        })
 
         this.gameScene.anims.create({
             key: "attack",
@@ -240,6 +253,15 @@ export class character_swordsman {
                 if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle") {
                     this.spriteStateValue = "idle";
                 }
+                break;
+            }
+            case "dying": {
+                this.sprite.anims.play("die", true);
+                this.spriteStateValue = "dead";
+                break;
+            }
+            case "dead": {
+                this.isDead = true;
                 break;
             }
             default: {
@@ -543,14 +565,19 @@ export class character_swordsman {
     }
 
     private limitValues() {
-        if (this.energyPoint <= 0){
+        if (this.energyPoint <= 0) {
             this.energyPoint = 0;
-        } else if (this.energyPoint >= 100){
+        } else if (this.energyPoint >= 100) {
             this.energyPoint = 100;
         }
 
-        if (this.healthPoint >= 100){
+        if (this.healthPoint >= 100) {
             this.healthPoint = 100;
+        } else if (this.healthPoint <= 0) {
+            if (this.spriteStateValue != "dying" && this.spriteStateValue != "dead") {
+                this.spriteStateValue = "dying";
+                this.sprite.setPushable(false);
+            }
         }
     }
 
