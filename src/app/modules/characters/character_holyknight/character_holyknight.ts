@@ -74,6 +74,7 @@ export class character_swordsman {
         this.gameScene.load.audio('character_dead', './assets/audio/hurt_022.wav');
 
         //icons
+        this.gameScene.load.image('basicAttack', './assets/slashIcon.png');
         this.gameScene.load.image('ability1', './assets/chargeIcon.png');
         this.gameScene.load.image("ability2", "./assets/shieldIcon.png");
 

@@ -6,6 +6,7 @@ export class game_interface{
     energyBar!: Phaser.GameObjects.Sprite;
     score: number = 0;
     scoreText!: Phaser.GameObjects.Text;
+    basicAttackIcon!: Phaser.GameObjects.Sprite;
     abilityIcon1!: Phaser.GameObjects.Sprite;
     abilityIcon2!: Phaser.GameObjects.Sprite;
 
@@ -23,6 +24,8 @@ export class game_interface{
         this.changeEnergyBar(0);
         this.scoreText = this.gameScene.add.text(100, 572, "Score: " + this.score.toString());
         this.scoreText.setOrigin(0.5, 0.5);
+        this.basicAttackIcon = this.gameScene.add.sprite(554, 572, 'basicAttack').setScale(0.45, 0.45);
+        this.gameScene.add.text(554, 595, "A").setOrigin(0.5, 0.5).setFill("0xffffff");
         this.abilityIcon1 = this.gameScene.add.sprite(625, 572, 'ability1').setScale(0.45, 0.45);
         this.gameScene.add.text(625, 595, "S").setOrigin(0.5, 0.5).setFill("0xffffff");
         this.abilityIcon2 = this.gameScene.add.sprite(696, 572, 'ability2').setScale(0.45, 0.45);
