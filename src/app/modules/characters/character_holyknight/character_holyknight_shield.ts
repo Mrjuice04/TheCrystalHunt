@@ -10,7 +10,7 @@ export class character_sword_shield {
     gameScene: Phaser.Scene;
     collision: collision;
     monsterControl: monsterControl;
-    damage: number = 20;
+    damage: number = 10;
     stunTime: number = 0;
     oneTimeCollision: boolean = false;
 

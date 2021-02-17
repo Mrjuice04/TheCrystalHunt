@@ -19,7 +19,7 @@ export class game_interface{
         this.gameScene.add.sprite(400, 572, "profile");
         this.healthBar = this.gameScene.add.sprite(400, 564, "healthBar");
         this.energyBar = this.gameScene.add.sprite(400, 579, "energyBar");
-        this.changeEnergyBar(50);
+        this.changeEnergyBar(0);
         this.scoreText = this.gameScene.add.text(100, 572, "Score: " + this.score.toString());
         this.scoreText.setOrigin(0.5, 0.5);
         this.abilityIcon1 = this.gameScene.add.sprite(554, 572, 'ability1').setScale(0.45, 0.45);

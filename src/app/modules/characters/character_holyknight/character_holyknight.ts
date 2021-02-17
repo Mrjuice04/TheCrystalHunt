@@ -16,8 +16,8 @@ export class character_swordsman {
     collision: collision;
     inAnims: boolean = false;
     monsterControl!: monsterControl;
-    healthPoint: number = 10;
-    energyPoint: number = 50;
+    healthPoint: number = 100;
+    energyPoint: number = 0;
     canAttack: boolean = true;
     canMove: boolean = true;
     isDead: boolean = false;
@@ -37,7 +37,7 @@ export class character_swordsman {
     private stunnedTime!: number;
 
     //keys
-    private keyW!: Phaser.Input.Keyboard.Key;
+    private keyZ!: Phaser.Input.Keyboard.Key;
     private keyA!: Phaser.Input.Keyboard.Key;
     private keyS!: Phaser.Input.Keyboard.Key;
     private keyD!: Phaser.Input.Keyboard.Key;
@@ -77,7 +77,7 @@ export class character_swordsman {
         this.gameScene.load.image('ability1', './assets/chargeIcon.png');
 
         //keys
-        this.keyW = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        this.keyZ = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
         this.keyA = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.keyS = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyD = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -163,6 +163,10 @@ export class character_swordsman {
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
         this.interface.changeHealthBar(this.healthPoint);
+        this.sprite.setTint(0xF86161);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
         if (this.healthPoint <= 0) {
             this.gameScene.sound.play('character_dead');
         }
@@ -471,9 +475,9 @@ export class character_swordsman {
 
     //ability 1
     private checkCharge() {
-        if (this.sprite.body.touching.down && ((this.lastDashTick == undefined) || (utils.tickElapsed(this.lastDashTick) >= 800)) && this.keyQ.isDown && this.energyPoint >= 50) {
+        if (this.sprite.body.touching.down && ((this.lastDashTick == undefined) || (utils.tickElapsed(this.lastDashTick) >= 800)) && this.keyS.isDown && this.energyPoint >= 25) {
             this.lastDashTick = utils.getTick();
-            this.energyPoint -= 50;
+            this.energyPoint -= 25;
             this.interface.changeEnergyBar(this.energyPoint);
             return true;
         }
@@ -524,9 +528,9 @@ export class character_swordsman {
 
     //ability 2
     private checkShield() {
-        if ((this.lastShieldTick == undefined || (utils.tickElapsed(this.lastShieldTick) >= 3300)) && this.keyW.isDown && this.energyPoint >= 70) {
+        if ((this.lastShieldTick == undefined || (utils.tickElapsed(this.lastShieldTick) >= 3300)) && this.keyD.isDown && this.energyPoint >= 50) {
             this.lastShieldTick = utils.getTick();
-            this.energyPoint -= 70;
+            this.energyPoint -= 50;
             this.interface.changeEnergyBar(this.energyPoint);
             return true;
         }

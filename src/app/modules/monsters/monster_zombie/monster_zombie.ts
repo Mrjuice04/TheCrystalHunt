@@ -51,6 +51,7 @@ export class monster_zombie {
         this.sprite.setVelocityX(-100);
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
         this.sprite.setPushable(false);
+
         this.sprite.anims.play("monster.move");
         this.gameScene.sound.add('monster1_damage1');
         this.gameScene.sound.add('monster1_damage2');
@@ -72,6 +73,10 @@ export class monster_zombie {
 
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
+        this.sprite.setTint(0xF86161);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
         if (this.healthPoint <= 0) {
             this.gameScene.sound.play('monster1_dead');
         }

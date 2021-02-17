@@ -12,6 +12,7 @@ export class background {
     constructor(aScene: Phaser.Scene, aCollision: collision) {
         aScene.load.image("ground", "./assets/ground.png")
         aScene.load.image("brick", "./assets/stone_tile.png")
+        aScene.load.image("grass", "./assets/grass_tile_1.png")
         this.collision = aCollision;
         this.gameScene = aScene;
     }
@@ -81,7 +82,9 @@ export class background {
             for (let j = 0; j < 32; j++) {
                 let x = j * 25 + 12.5;
                 let y = i * 25 + 12.5;
-                let ground = this.gameScene.physics.add.staticImage(x, y, "brick");
+                let ground = this.gameScene.physics.add.image(x, y, "grass").setScale(0.25, 0.25);
+                ground.setImmovable(true);
+                ground.body.setAllowGravity(false);
                 this.gridArray[i][j] = 1;
                 this.collision.addBrick(ground);
             }
@@ -94,7 +97,9 @@ export class background {
                 if (type == 1) {
                     let x = j * 25 + 12.5;
                     let y = i * 25 + 12.5;
-                    let brick = this.gameScene.physics.add.staticImage(x, y, "brick");
+                    let brick = this.gameScene.physics.add.image(x, y, "brick");
+                    brick.setImmovable(true);
+                    brick.body.setAllowGravity(false);
                     this.collision.addBrick(brick);
                 }
             }
