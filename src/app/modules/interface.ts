@@ -7,6 +7,7 @@ export class game_interface{
     score: number = 0;
     scoreText!: Phaser.GameObjects.Text;
     abilityIcon1!: Phaser.GameObjects.Sprite;
+    abilityIcon2!: Phaser.GameObjects.Sprite;
 
     constructor(aScene: Phaser.Scene){
         this.gameScene = aScene;
@@ -22,7 +23,10 @@ export class game_interface{
         this.changeEnergyBar(0);
         this.scoreText = this.gameScene.add.text(100, 572, "Score: " + this.score.toString());
         this.scoreText.setOrigin(0.5, 0.5);
-        this.abilityIcon1 = this.gameScene.add.sprite(554, 572, 'ability1').setScale(0.45, 0.45);
+        this.abilityIcon1 = this.gameScene.add.sprite(625, 572, 'ability1').setScale(0.45, 0.45);
+        this.gameScene.add.text(625, 595, "S").setOrigin(0.5, 0.5).setFill("0xffffff");
+        this.abilityIcon2 = this.gameScene.add.sprite(696, 572, 'ability2').setScale(0.45, 0.45);
+        this.gameScene.add.text(696, 595, "D").setOrigin(0.5, 0.5).setFill("0xffffff");
     }
 
     public changeHealthBar(aHealthPoint: number){

@@ -20,6 +20,7 @@ export class monsterControl {
     scoreGained: number = 0;
     roundPlaying: boolean = false;
     lastRoundTick!: number;
+    scorePerRound: number = 1000;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
@@ -75,6 +76,8 @@ export class monsterControl {
             if (this.monsterArray.length <= 0) {
                 this.roundPlaying = false;
                 this.lastRoundTick = utils.getTick();
+                this.scoreGained += this.scorePerRound;
+                this.scorePerRound += 250;
             }
         } else {
             if (this.lastRoundTick == undefined || utils.tickElapsed(this.lastRoundTick) >= 5000) {

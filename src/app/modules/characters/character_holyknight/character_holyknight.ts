@@ -75,6 +75,7 @@ export class character_swordsman {
 
         //icons
         this.gameScene.load.image('ability1', './assets/chargeIcon.png');
+        this.gameScene.load.image("ability2", "./assets/shieldIcon.png");
 
         //keys
         this.keyZ = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
