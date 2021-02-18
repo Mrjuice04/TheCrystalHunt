@@ -5,15 +5,15 @@ import { monsterControl } from "../../monsters/monster_control";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 
 
-export class character_sword_dash {
+export class character_sword_blast {
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     collision: collision;
     monsterControl: monsterControl;
     damage: number = 15;
-    stunTime: number = 500;
-    oneTimeCollision: boolean = false;
-    collisionFrequency: number = 500;
+    stunTime: number = 1000;
+    oneTimeCollision: boolean = true;
+    collisionFrequency: number = 0;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
@@ -22,10 +22,10 @@ export class character_sword_dash {
         this.monsterControl = aMonsterControl;
     }
 
-    public create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_dash");
+    public create(aPosX: number, aPosY: number, aChargeTime: number) {
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_blast");
         this.sprite.body.setAllowGravity(false);
-        this.sprite.setScale(1.2, 1.2);
+        this.damage += Phaser.Math.FloorTo(aChargeTime / 13);
         this.collision.addPlayerAttack(this);
         setTimeout(() =>{
             if(this.sprite){
@@ -35,24 +35,18 @@ export class character_sword_dash {
     }
 
     public playAnims() {
-        this.sprite.anims.playReverse("ability_dash");
+        this.sprite.anims.play("blast_effect");
         this.gameScene.sound.play('ability_dash');
     }
 
-    hitMonster(aMonster: monster_zombie) {
+    public hitMonster(aMonster: monster_zombie) {
         aMonster.isDamaged(this.damage);
         console.log("monster hit" + aMonster.healthPoint);
-        let velocityX;
-        if (!this.sprite.flipX){
-            velocityX = 200;
-        } else {
-            velocityX = -200;
-        }
-        aMonster.isKnockbacked(velocityX, -200, 1000, true, this.stunTime);
+        aMonster.isStunned(this.stunTime);
     }
 
 
-    destroy() {
+    public destroy() {
         this.sprite.destroy();
     }
 

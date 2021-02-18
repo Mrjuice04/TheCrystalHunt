@@ -11,6 +11,7 @@ import { monsterType } from 'src/app/modules/monsters/monster_type';
 let gMonsterArray: Array<monsterType> = [];
 let gColliderInfoArray: Array<collisonInfo> = [];
 let gCrystalArray: Array<monster_crystal> = [];
+let gAttackArray: Array<any> = [];
 
 type players = character_swordsman;
 
@@ -47,9 +48,13 @@ export class collision {
         for (let i = 0; i < this.brickArray.length; i++) {
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
+        for (let i = 0; i < gAttackArray.length; i++) {
+            this.gameScene.physics.add.collider(aMonster.sprite, gAttackArray[i]);
+        }
     }
 
     addPlayerAttack(aAttack: any) {
+        gAttackArray.push(aAttack);
         for (let i = 0; i < gMonsterArray.length; i++) {
             let monstersprite = gMonsterArray[i].sprite;
             let collider = this.gameScene.physics.add.overlap(aAttack.sprite, monstersprite, this.playerAttackHitMonster);
@@ -69,7 +74,7 @@ export class collision {
                         gColliderInfoArray[i].collider.active = false;
                         setTimeout(() => {
                             gColliderInfoArray[i].collider.active = true;
-                        }, 300)
+                        }, gColliderInfoArray[i].attackClass.collisionFrequency)
                     }
                 }
             }

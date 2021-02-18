@@ -21,6 +21,7 @@ export class monsterControl {
     roundPlaying: boolean = false;
     lastRoundTick!: number;
     scorePerRound: number = 1000;
+    currRound: number = 0;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
@@ -90,6 +91,7 @@ export class monsterControl {
     private startRound() {
         this.addMonster_Crystal(14.5, 50);
         this.addMonster_Crystal(785.5, 50);
+        this.currRound ++;
         this.roundPlaying = true;
     }
 
@@ -99,5 +101,9 @@ export class monsterControl {
         let score = this.scoreGained;
         this.scoreGained = 0;
         return score;
+    }
+
+    public getRound(){
+        return this.currRound;
     }
 }

@@ -15,6 +15,7 @@ export class character_sword_slash {
     stunTime: number = 100;
     energyGained: number = 0;
     oneTimeCollision: boolean = true;
+    collisionFrequency: number = 0;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {

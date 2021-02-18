@@ -9,6 +9,8 @@ export class game_interface{
     basicAttackIcon!: Phaser.GameObjects.Sprite;
     abilityIcon1!: Phaser.GameObjects.Sprite;
     abilityIcon2!: Phaser.GameObjects.Sprite;
+    currRound: number = 0;
+    roundText!: Phaser.GameObjects.Text;
 
     constructor(aScene: Phaser.Scene){
         this.gameScene = aScene;
@@ -22,8 +24,10 @@ export class game_interface{
         this.healthBar = this.gameScene.add.sprite(400, 564, "healthBar");
         this.energyBar = this.gameScene.add.sprite(400, 579, "energyBar");
         this.changeEnergyBar(0);
-        this.scoreText = this.gameScene.add.text(100, 572, "Score: " + this.score.toString());
+        this.scoreText = this.gameScene.add.text(200, 572, "Score: " + this.score.toString());
         this.scoreText.setOrigin(0.5, 0.5);
+        this.roundText = this.gameScene.add.text(80, 572, "Round: " + this.currRound.toString());
+        this.roundText.setOrigin(0.5, 0.5);
         this.basicAttackIcon = this.gameScene.add.sprite(554, 572, 'basicAttack').setScale(0.45, 0.45);
         this.gameScene.add.text(554, 595, "A").setOrigin(0.5, 0.5).setFill("0xffffff");
         this.abilityIcon1 = this.gameScene.add.sprite(625, 572, 'ability1').setScale(0.45, 0.45);
@@ -51,5 +55,10 @@ export class game_interface{
     public changeScore(aScore: number){
         this.score = aScore;
         this.scoreText.setText("Score: " + this.score.toString());
+    }
+
+    public changeRound(aRound: number){
+        this.currRound = aRound;
+        this.roundText.setText("Round: " + this.currRound.toString());
     }
 }

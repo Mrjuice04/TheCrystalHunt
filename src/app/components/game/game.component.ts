@@ -62,6 +62,7 @@ class MainScene extends Phaser.Scene {
   interface!: game_interface;
   score: number = 0;
   bgm!: Phaser.Sound.BaseSound;
+  currRound: number = 0;
 
   constructor() {
     super({ key: 'main' });
@@ -70,11 +71,6 @@ class MainScene extends Phaser.Scene {
   preload() {
     //key input
     this.input.keyboard.enabled = true;
-    // this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-    // this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-    // this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-    // this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-    // this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
 
     //load assets
     this.background = new background(this, this.collision);
@@ -99,11 +95,16 @@ class MainScene extends Phaser.Scene {
   }
 
   update() {
-    //key input
+    //sprite update
     this.player.update();
     this.monsterControl.update(this.player);
+
+    //interface update
     this.score += this.monsterControl.getScore();
     this.interface.changeScore(this.score);
+    this.currRound = this.monsterControl.currRound;
+    this.interface.changeRound(this.currRound);
+    //gameover
     if(this.player.checkDeath()){
       console.log("Player is Dead");
     }
