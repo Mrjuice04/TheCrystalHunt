@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { GameComponent } from '../../components/game/game.component';
 
 @Component({
   selector: 'app-game-page',
@@ -7,6 +8,9 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./game-page.component.css']
 })
 export class GamePageComponent implements OnInit {
+  @ViewChild('GameComponent') gameComponent!: GameComponent;
+
+  gameover: boolean = false;
 
   constructor(private router: Router, private route: ActivatedRoute) { }
 
@@ -15,5 +19,12 @@ export class GamePageComponent implements OnInit {
 
   onExitClicked(): void {
     this.router.navigate(['home']);
+  }
+
+  onGameOver(): void {
+    if (!this.gameover) {
+      console.log ('onGameOver()');
+      this.gameover = true;
+    }
   }
 }

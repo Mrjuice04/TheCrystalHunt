@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 import Phaser from 'phaser';
 import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
@@ -8,7 +8,12 @@ import { monsterControl } from 'src/app/modules/monsters/monster_control';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { game_interface } from 'src/app/modules/interface';
 
-
+declare global {
+  interface Window {
+    onGameOver: () => void;
+    onGameOverParent: any;
+  }
+}
 
 @Component({
   selector: 'app-game',
@@ -16,6 +21,8 @@ import { game_interface } from 'src/app/modules/interface';
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
+  @Output() gameOver: EventEmitter<void> = new EventEmitter();
+
   phaserGame!: Phaser.Game;
   config: Phaser.Types.Core.GameConfig;
 
@@ -33,10 +40,15 @@ export class GameComponent implements OnInit {
           gravity: { y: 300 }
         }
       }
-    };
+    };    
   }
 
   ngOnInit() {
+    window.onGameOverParent = this;
+    window.onGameOver = () => {
+      window.onGameOverParent.gameOver.emit();
+    }
+
     this.phaserGame = new Phaser.Game(this.config);
   }
 
@@ -46,7 +58,6 @@ export class GameComponent implements OnInit {
       this.phaserGame.destroy(true);
     }
   }
-
 }
 
 class MainScene extends Phaser.Scene {
@@ -106,8 +117,9 @@ class MainScene extends Phaser.Scene {
     //gameover
     if(this.player.checkDeath()){
       console.log("Player is Dead");
+      if (window.onGameOver) {
+        window.onGameOver();
+      }
     }
   }
-
-
 }
