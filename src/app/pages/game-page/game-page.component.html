@@ -2,8 +2,15 @@
     <div class="title-text">~ The Crystal Hunt ~</div>
 </div>
 <div class="flex-box">
-    <app-game></app-game>
-</div>
-<div class="flex-box">
-    <a class="menu-button" (click)="onExitClicked()">Exit</a>
+    <div class="container">
+        <app-game #GameComponent (gameOver)="onGameOver()"></app-game>
+        <div class="gameover-mask" [ngClass]="{'nodisplay': !gameover}">
+        </div>
+        <div class="gameover-image-box" [ngClass]="{'nodisplay': !gameover}">
+            <img class="gameover-image" src="../../../assets/gameover.svg" />
+        </div>
+        <div class="gameover-button-box" [ngClass]="{'nodisplay': !gameover}">
+            <a class="menu-button" (click)="onExitClicked()">Exit</a>
+        </div>
+    </div>
 </div>
