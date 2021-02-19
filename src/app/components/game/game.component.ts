@@ -104,6 +104,9 @@ class MainScene extends Phaser.Scene {
     this.monsterControl.update(this.player);
     this.score += this.monsterControl.getScore();
     this.interface.changeScore(this.score);
+    if(this.player.checkDeath()){
+      console.log("Player is Dead");
+    }
   }
 
 

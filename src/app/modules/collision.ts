@@ -25,7 +25,7 @@ interface collisonInfo {
 export class collision {
     gameScene: Phaser.Scene;
     player!: character_swordsman;
-    brickArray: Array<Phaser.Types.Physics.Arcade.ImageWithStaticBody> = [];
+    brickArray: Array<Phaser.Types.Physics.Arcade.ImageWithDynamicBody> = [];
 
     constructor(aScene: Phaser.Scene) {
         this.gameScene = aScene;
@@ -33,7 +33,7 @@ export class collision {
 
 
 
-    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithStaticBody) {
+    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithDynamicBody) {
         this.gameScene.physics.add.collider(this.player.sprite, aBrick);
         this.brickArray.push(aBrick);
     }

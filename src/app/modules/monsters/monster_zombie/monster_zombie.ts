@@ -51,6 +51,7 @@ export class monster_zombie {
         this.sprite.setVelocityX(-100);
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
         this.sprite.setPushable(false);
+
         this.sprite.anims.play("monster.move");
         this.gameScene.sound.add('monster1_damage1');
         this.gameScene.sound.add('monster1_damage2');
@@ -72,6 +73,10 @@ export class monster_zombie {
 
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
+        this.sprite.setTint(0xF86161);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
         if (this.healthPoint <= 0) {
             this.gameScene.sound.play('monster1_dead');
         }
@@ -112,23 +117,29 @@ export class monster_zombie {
     }
 
     public createAnims(aScene: Phaser.Scene) {
-        aScene.anims.create({
+        this.gameScene.anims.create({
             key: "monster.move",
-            frames: aScene.anims.generateFrameNumbers("monster1", { start: 14, end: 17 }),
+            frames: this.gameScene.anims.generateFrameNumbers("monster1", { start: 14, end: 17 }),
             frameRate: 10,
             repeat: -1,
         });
 
-        aScene.anims.create({
+        this.gameScene.anims.create({
+            key: "monster.die",
+            frames: this.gameScene.anims.generateFrameNumbers("monster1", { start: 0, end: 4 }),
+            frameRate: 10,
+        })
+
+        this.gameScene.anims.create({
             key: "monster.idle",
-            frames: aScene.anims.generateFrameNumbers("monster1", { start: 7, end: 10 }),
+            frames: this.gameScene.anims.generateFrameNumbers("monster1", { start: 7, end: 10 }),
             frameRate: 10,
             repeat: -1,
         });
 
-        aScene.anims.create({
+        this.gameScene.anims.create({
             key: "bite",
-            frames: aScene.anims.generateFrameNumbers("bite", { start: 0, end: 3 }),
+            frames: this.gameScene.anims.generateFrameNumbers("bite", { start: 0, end: 3 }),
             frameRate: 10,
             repeat: -1,
         })
@@ -432,8 +443,11 @@ export class monster_zombie {
     }
 
     public destroy() {
-        this.sprite.destroy();
+        this.sprite.play("monster.die", true)
         this.destoryed = true;
+        setTimeout(() => {
+            this.sprite.destroy();
+        }, 500)
     }
 
 

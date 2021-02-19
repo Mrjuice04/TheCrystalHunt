@@ -41,7 +41,7 @@ export class character_sword_slash {
         aMonster.isDamaged(this.damage);
         aMonster.isStunned(this.stunTime);
         console.log("monster hit" + aMonster.healthPoint);
-        this.energyGained += 4;
+        this.energyGained += 2;
     }
 
     public getEnergy(){
