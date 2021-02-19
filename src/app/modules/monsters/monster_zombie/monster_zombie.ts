@@ -35,8 +35,8 @@ export class monster_zombie {
     }
 
     static loadSprite(aScene: Phaser.Scene) {
-        aScene.load.spritesheet("monster1", "./assets/monster_zombie.png", { frameWidth: 26, frameHeight: 32 });
-        aScene.load.spritesheet("bite", "./assets/monster_zombie_bite.png", { frameWidth: 11, frameHeight: 11 });
+        aScene.load.spritesheet("monster1", "./assets/monsters/monster_zombie/monster_zombie.png", { frameWidth: 26, frameHeight: 32 });
+        aScene.load.spritesheet("bite", "./assets/monsters/monster_zombie/monster_zombie_bite.png", { frameWidth: 11, frameHeight: 11 });
         aScene.load.audio('monster1_damage1', './assets/audio/hurt_222.wav');
         aScene.load.audio('monster1_damage2', './assets/audio/76967__michel88__paine.wav');
         aScene.load.audio('monster1_damage3', './assets/audio/76972__michel88__pains.wav');

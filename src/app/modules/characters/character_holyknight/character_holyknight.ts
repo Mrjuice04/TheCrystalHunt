@@ -66,11 +66,6 @@ export class character_swordsman {
         this.gameScene = aScene;
         this.interface = aInterface;
 
-        this.gameScene.load.spritesheet("character_holyknight", "./assets/character_swordsman_test.png", { frameWidth: 30, frameHeight: 36 });
-        this.gameScene.load.spritesheet("ability_dash", "./assets/sword_effect.png", { frameWidth: 24, frameHeight: 11 });
-        this.gameScene.load.spritesheet("ability_slash", "./assets/sword_effect_2.png", { frameWidth: 31, frameHeight: 24 });
-        this.gameScene.load.spritesheet("ability_shield", "./assets/shield_effect.png", { frameWidth: 64, frameHeight: 64 });
-        this.gameScene.load.spritesheet("ability_blast", "./assets/blast_effect.png", { frameWidth: 104, frameHeight: 23 });
         this.gameScene.load.audio('ability_dash', './assets/audio/metal_015.wav');
         this.gameScene.load.audio('ability_shield', './assets/audio/249819__spookymodem__magic-smite.wav');
         this.gameScene.load.audio('ability_shield_2', './assets/audio/magic_063.wav');
@@ -79,10 +74,21 @@ export class character_swordsman {
         this.gameScene.load.audio('character_damage', './assets/audio/hurt_007.wav');
         this.gameScene.load.audio('character_dead', './assets/audio/hurt_022.wav');
 
+        //character sprite
+        this.gameScene.load.spritesheet("character_holyknight", "./assets/characters/character_holyknight/character_holyknight.png", { frameWidth: 30, frameHeight: 36 });
+
+        //skill effects
+        this.gameScene.load.spritesheet("ability_dash", "./assets/characters/character_holyknight/charge_effect.png", { frameWidth: 24, frameHeight: 11 });
+        this.gameScene.load.spritesheet("ability_slash", "./assets/characters/character_holyknight/slash_effect.png", { frameWidth: 31, frameHeight: 24 });
+        this.gameScene.load.spritesheet("ability_shield", "./assets/characters/character_holyknight/shield_effect.png", { frameWidth: 64, frameHeight: 64 });
+        this.gameScene.load.spritesheet("ability_blast", "./assets/characters/character_holyknight/blast_effect.png", { frameWidth: 104, frameHeight: 23 });
+
         //icons
-        this.gameScene.load.image('basicAttack', './assets/slashIcon.png');
-        this.gameScene.load.image('ability1', './assets/chargeIcon.png');
-        this.gameScene.load.image("ability2", "./assets/shieldIcon1.png");
+        this.gameScene.load.image('basicAttack', './assets/characters/character_holyknight/slash_icon.png');
+        this.gameScene.load.image('ability1', './assets/characters/character_holyknight/charge_icon.png');
+        this.gameScene.load.image("ability2", "./assets/characters/character_holyknight/shield_icon.png");
+        this.gameScene.load.image("ultimate", "./assets/characters/character_holyknight/blast_icon.png");
+
 
         //keys
         this.keyZ = this.gameScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);

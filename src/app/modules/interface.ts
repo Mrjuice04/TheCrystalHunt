@@ -9,6 +9,7 @@ export class game_interface{
     basicAttackIcon!: Phaser.GameObjects.Sprite;
     abilityIcon1!: Phaser.GameObjects.Sprite;
     abilityIcon2!: Phaser.GameObjects.Sprite;
+    ultimateIcon!: Phaser.GameObjects.Sprite;
     currRound: number = 0;
     roundText!: Phaser.GameObjects.Text;
 
@@ -17,6 +18,7 @@ export class game_interface{
         this.gameScene.load.image("profile", "./assets/profile_test.png");
         this.gameScene.load.image("healthBar", "./assets/hb.png");
         this.gameScene.load.image("energyBar", "./assets/eb.png");
+        this.gameScene.load.image("sky", "./assets/gameScene/sky.png");
     }
 
     public create(){
@@ -34,6 +36,8 @@ export class game_interface{
         this.gameScene.add.text(625, 595, "S").setOrigin(0.5, 0.5).setFill("0xffffff");
         this.abilityIcon2 = this.gameScene.add.sprite(696, 572, 'ability2').setScale(0.45, 0.45);
         this.gameScene.add.text(696, 595, "D").setOrigin(0.5, 0.5).setFill("0xffffff");
+        this.ultimateIcon = this.gameScene.add.sprite(767, 572, 'ultimate').setScale(0.2, 0.2);
+        this.gameScene.add.text(767, 595, "Q").setOrigin(0.5, 0.5).setFill("0xffffff");
     }
 
     public changeHealthBar(aHealthPoint: number){

@@ -79,7 +79,6 @@ class MainScene extends Phaser.Scene {
     this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray());
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
-    this.load.image("sky", "./assets/sky.png");
     this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
   }
 

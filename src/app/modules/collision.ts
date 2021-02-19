@@ -49,7 +49,9 @@ export class collision {
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
         for (let i = 0; i < gAttackArray.length; i++) {
-            this.gameScene.physics.add.collider(aMonster.sprite, gAttackArray[i]);
+            let collider = this.gameScene.physics.add.collider(aMonster.sprite, gAttackArray[i]);
+            let collision_info: collisonInfo = { collider: collider, spriteClass: aMonster, attackClass: gAttackArray[i]};
+            gColliderInfoArray.push(collision_info);
         }
     }
 
