@@ -95,7 +95,6 @@ class MainScene extends Phaser.Scene {
 
   create() {
     this.add.sprite(400, 300, "sky");
-    // this.background.create(this);
     this.player.createAnims();
     this.player.create();
     this.background.createGrid();
@@ -116,7 +115,6 @@ class MainScene extends Phaser.Scene {
     this.interface.changeRound(this.currRound);
     //gameover
     if(this.player.checkDeath()){
-      console.log("Player is Dead");
       if (window.onGameOver) {
         window.onGameOver();
       }

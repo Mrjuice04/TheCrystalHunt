@@ -43,13 +43,13 @@ export class collision {
         this.player = aPlayer;
     }
 
-    addMonster(aMonster: monster_zombie) {
+    addMonster(aMonster: monsterType) {
         this.gameScene.physics.add.collider(aMonster.sprite, this.player.sprite);
         for (let i = 0; i < this.brickArray.length; i++) {
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
         for (let i = 0; i < gAttackArray.length; i++) {
-            let collider = this.gameScene.physics.add.collider(aMonster.sprite, gAttackArray[i]);
+            let collider = this.gameScene.physics.add.collider(gAttackArray[i], aMonster.sprite, this.playerAttackHitMonster);
             let collision_info: collisonInfo = { collider: collider, spriteClass: aMonster, attackClass: gAttackArray[i]};
             gColliderInfoArray.push(collision_info);
         }

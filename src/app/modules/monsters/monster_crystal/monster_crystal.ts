@@ -19,7 +19,7 @@ export class monster_crystal {
     }
 
     static loadSprite(aScene: Phaser.Scene) {
-        aScene.load.spritesheet("crystal", "./assets/crystal.png", { frameWidth: 58, frameHeight: 100 });
+        aScene.load.spritesheet("crystal", "./assets/monsters/monster_crystal/crystal.png", { frameWidth: 58, frameHeight: 100 });
 
     }
 

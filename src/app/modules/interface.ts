@@ -15,9 +15,9 @@ export class game_interface{
 
     constructor(aScene: Phaser.Scene){
         this.gameScene = aScene;
-        this.gameScene.load.image("profile", "./assets/profile_test.png");
-        this.gameScene.load.image("healthBar", "./assets/hb.png");
-        this.gameScene.load.image("energyBar", "./assets/eb.png");
+        this.gameScene.load.image("profile", "./assets/gameScene/profile_test.png");
+        this.gameScene.load.image("healthBar", "./assets/gameScene/healthBar.png");
+        this.gameScene.load.image("energyBar", "./assets/gameScene/energyBar.png");
         this.gameScene.load.image("sky", "./assets/gameScene/sky.png");
     }
 

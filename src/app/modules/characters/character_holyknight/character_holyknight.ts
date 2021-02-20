@@ -31,9 +31,11 @@ export class character_swordsman {
     //tick
     private lastDashTick!: number;
     private lastShieldTick!: number;
+    private shieldEnergyTick!: number;
     private lastSlashTick!: number;
     private lastBlastTick!: number;
     private blastChargingTime!: number;
+    private blastEnergyTick!: number
     private initHeight!: number;
     private lastStunTick!: number;
     private lastJumpTick!: number;
@@ -314,10 +316,8 @@ export class character_swordsman {
                 break;
             }
             case "start": {
-                this.sprite.setVelocityX(0);
                 this.doSlash();
                 this.createSlashEffect();
-                this.spriteStateValue = "idle";
                 this.slashStateValue = "playing";
                 break;
             }
@@ -372,7 +372,6 @@ export class character_swordsman {
             case "playing1": {
                 this.useShield();
                 if (this.checkPlayerShieldAnimEnd()) {
-                    this.spriteStateValue = "idle";
                     this.shieldStateValue = "playing2";
                 }
                 break;
@@ -397,7 +396,7 @@ export class character_swordsman {
                 break;
             }
             case "start": {
-                if (this.doBlast()){
+                if (this.doBlast()) {
                     this.createBlastEffect();
                     this.blastStateValue = "playing";
                     this.spriteStateValue = "idle";
@@ -412,7 +411,7 @@ export class character_swordsman {
                 break;
             }
         }
-    } 
+    }
 
     private isIdle() {
         this.sprite.setVelocityX(0);
@@ -424,7 +423,6 @@ export class character_swordsman {
 
     private checkWalking() {
         if ((this.cursors.left.isDown || this.cursors.right.isDown) && this.sprite.body.touching.down) {
-            this.lastSlashTick = utils.getTick();
             return true;
         }
         return false;
@@ -494,6 +492,11 @@ export class character_swordsman {
     }
 
     private doSlash() {
+        if (!this.sprite.flipX) {
+            this.sprite.setVelocityX(50);
+        } else {
+            this.sprite.setVelocityX(-50);
+        }
         this.sprite.anims.play("attack", true);
     }
 
@@ -522,8 +525,7 @@ export class character_swordsman {
         } else {
             this.slashEffect.sprite.setPosition(pos.x - 10, pos.y)
         }
-        this.energyPoint += this.slashEffect.getEnergy();
-        this.interface.changeEnergyBar(this.energyPoint);
+        this.incEnergy(this.slashEffect.getEnergy());
     }
 
     private checkSlashEnd(): boolean {
@@ -538,8 +540,7 @@ export class character_swordsman {
     private checkCharge() {
         if (this.sprite.body.touching.down && ((this.lastDashTick == undefined) || (utils.tickElapsed(this.lastDashTick) >= 800)) && this.keyS.isDown && this.energyPoint >= 25) {
             this.lastDashTick = utils.getTick();
-            this.energyPoint -= 25;
-            this.interface.changeEnergyBar(this.energyPoint);
+            this.decEnergy(25);
             return true;
         }
         return false;
@@ -548,9 +549,9 @@ export class character_swordsman {
     private doCharge() {
         if ((utils.tickElapsed(this.lastDashTick) >= 410)) {
             if (!this.sprite.flipX) {
-                this.sprite.setVelocityX(300);
+                this.sprite.setVelocityX(360);
             } else {
-                this.sprite.setVelocityX(-300);
+                this.sprite.setVelocityX(-360);
             }
         }
     }
@@ -580,7 +581,7 @@ export class character_swordsman {
     }
 
     private checkChargeEnd() {
-        if ((utils.tickElapsed(this.lastDashTick) >= 1500)) {
+        if ((utils.tickElapsed(this.lastDashTick) >= 1250)) {
             this.chargeEffect.destroy();
             return true;
         }
@@ -591,8 +592,6 @@ export class character_swordsman {
     private checkShield() {
         if ((this.lastShieldTick == undefined || (utils.tickElapsed(this.lastShieldTick) >= 3300)) && this.keyD.isDown && this.energyPoint >= 50) {
             this.lastShieldTick = utils.getTick();
-            this.energyPoint -= 50;
-            this.interface.changeEnergyBar(this.energyPoint);
             return true;
         }
         return false;
@@ -600,11 +599,12 @@ export class character_swordsman {
 
     private useShield() {
         this.sprite.setVelocityX(0);
+        this.sprite.setPushable(false);
     }
 
     private checkPlayerShieldAnimEnd() {
         this.updateShieldEffect();
-        if ((utils.tickElapsed(this.lastShieldTick) >= 900)) {
+        if ((utils.tickElapsed(this.lastShieldTick) >= 1000)) {
             return true;
         }
         return false;
@@ -614,16 +614,33 @@ export class character_swordsman {
         this.shieldEffect = new character_sword_shield(this.gameScene, this.collision, this.monsterControl);
         let pos = this.sprite.getCenter();
         this.shieldEffect.create(pos.x, pos.y);
+        this.shieldEnergyTick = utils.getTick();
     }
 
     private updateShieldEffect() {
         let pos = this.sprite.getCenter();
         this.shieldEffect.sprite.setPosition(pos.x, pos.y);
+        if (utils.tickElapsed(this.shieldEnergyTick) >= 250) {
+            this.shieldEnergyTick = utils.getTick();
+            this.decEnergy(3.25);
+        }
+        if (this.cursors.left.isDown) {
+            this.sprite.flipX = true;
+            this.sprite.setVelocityX(-50);
+            this.sprite.anims.play("move", true);
+        } else if (this.cursors.right.isDown) {
+            this.sprite.flipX = false;
+            this.sprite.setVelocityX(50);
+            this.sprite.anims.play("move", true);
+        } else {
+            this.sprite.setVelocityX(0);
+        }
     }
 
 
     private checkShieldEnd() {
-        if ((utils.tickElapsed(this.lastShieldTick) >= 5000)) {
+        if ((this.energyPoint <= 0) || ((utils.tickElapsed(this.lastShieldTick) >= 1500) && this.keyD.isDown) ||(utils.tickElapsed(this.lastShieldTick) >= 5000)) {
+            this.sprite.setPushable(true);
             this.shieldEffect.destroy();
             return true;
         }
@@ -632,10 +649,10 @@ export class character_swordsman {
 
     //ultimate ability
     private checkBlast() {
-        if (this.sprite.body.touching.down && (this.lastBlastTick == undefined || (utils.tickElapsed(this.lastBlastTick) >= 1000)) && this.keyQ.isDown && this.energyPoint >= 100) {
+        if (this.sprite.body.touching.down && (this.lastBlastTick == undefined || (utils.tickElapsed(this.lastBlastTick) >= 1000)) && this.keyQ.isDown && this.energyPoint >= 75) {
             this.lastBlastTick = utils.getTick();
-            this.energyPoint -= 100;
-            this.interface.changeEnergyBar(this.energyPoint);
+            this.blastEnergyTick = utils.getTick();
+            this.decEnergy(10);
             return true;
         }
         return false;
@@ -651,6 +668,13 @@ export class character_swordsman {
             this.blastChargingTime = 2000;
             this.lastBlastTick = utils.getTick();
             return true;
+        } else if (this.spriteStateValue == "stunned"){
+            this.blastChargingTime = this.keyQ.getDuration();
+            this.lastBlastTick = utils.getTick();
+        }
+        if(utils.tickElapsed(this.blastEnergyTick) >= 250){
+            this.blastEnergyTick = utils.getTick();
+            this.decEnergy(6.25);
         }
         return false;
     }
@@ -680,12 +704,24 @@ export class character_swordsman {
         return false;
     }
 
-    private limitValues() {
-        if (this.energyPoint <= 0) {
+    private decEnergy(aNumber: number) {
+        if (this.energyPoint >= aNumber) {
+            this.energyPoint -= aNumber;
+        } else {
             this.energyPoint = 0;
-        } else if (this.energyPoint >= 100) {
+        }
+        this.interface.changeEnergyBar(this.energyPoint);
+    }
+
+    private incEnergy(aNumber: number) {
+        this.energyPoint += aNumber;
+        if (this.energyPoint >= 100) {
             this.energyPoint = 100;
         }
+        this.interface.changeEnergyBar(this.energyPoint);
+    }
+
+    private limitValues() {
 
         if (this.healthPoint >= 100) {
             this.healthPoint = 100;

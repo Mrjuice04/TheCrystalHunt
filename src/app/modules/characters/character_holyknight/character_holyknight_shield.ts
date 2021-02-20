@@ -24,7 +24,7 @@ export class character_sword_shield {
     }
 
     create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_shield1").setScale(0.5, 0.5);
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_shield").setScale(0.6, 0.6);
         this.gameScene.sound.add('ability_shield');
         this.sprite.body.setAllowGravity(false);
         this.playAnims();
