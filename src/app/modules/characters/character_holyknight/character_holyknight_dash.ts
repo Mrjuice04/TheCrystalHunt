@@ -51,7 +51,6 @@ export class character_sword_dash {
         aMonster.isKnockbacked(velocityX, -200, 1000, true, this.stunTime);
     }
 
-
     destroy() {
         this.sprite.destroy();
     }

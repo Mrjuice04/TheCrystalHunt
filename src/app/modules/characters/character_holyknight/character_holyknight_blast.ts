@@ -27,11 +27,11 @@ export class character_sword_blast {
         this.sprite.body.setAllowGravity(false);
         this.damage += Phaser.Math.FloorTo(aChargeTime / 13);
         this.collision.addPlayerAttack(this);
-        setTimeout(() =>{
-            if(this.sprite){
+        setTimeout(() => {
+            if (this.sprite) {
                 this.destroy();
             }
-        },4000)
+        }, 4000)
     }
 
     public playAnims() {
@@ -44,6 +44,7 @@ export class character_sword_blast {
         console.log("monster hit" + aMonster.healthPoint);
         aMonster.isStunned(this.stunTime);
     }
+
 
 
     public destroy() {

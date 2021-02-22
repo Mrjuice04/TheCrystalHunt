@@ -49,20 +49,20 @@ export class collision {
             this.gameScene.physics.add.collider(aMonster.sprite, this.brickArray[i]);
         }
         for (let i = 0; i < gAttackArray.length; i++) {
-            let collider = this.gameScene.physics.add.collider(gAttackArray[i], aMonster.sprite, this.playerAttackHitMonster);
-            let collision_info: collisonInfo = { collider: collider, spriteClass: aMonster, attackClass: gAttackArray[i]};
+            let collider = this.gameScene.physics.add.overlap(gAttackArray[i].sprite, aMonster.sprite, this.playerAttackHitMonster);
+            let collision_info: collisonInfo = { collider: collider, spriteClass: aMonster, attackClass: gAttackArray[i] };
             gColliderInfoArray.push(collision_info);
         }
     }
 
     addPlayerAttack(aAttack: any) {
-        gAttackArray.push(aAttack);
         for (let i = 0; i < gMonsterArray.length; i++) {
             let monstersprite = gMonsterArray[i].sprite;
             let collider = this.gameScene.physics.add.overlap(aAttack.sprite, monstersprite, this.playerAttackHitMonster);
             let collision_info: collisonInfo = { collider: collider, spriteClass: gMonsterArray[i], attackClass: aAttack };
             gColliderInfoArray.push(collision_info);
         }
+        gAttackArray.push(aAttack);
     }
 
     playerAttackHitMonster(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aMonster: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
@@ -74,9 +74,13 @@ export class collision {
                         gColliderInfoArray[i].collider.destroy();
                     } else {
                         gColliderInfoArray[i].collider.active = false;
-                        setTimeout(() => {
-                            gColliderInfoArray[i].collider.active = true;
-                        }, gColliderInfoArray[i].attackClass.collisionFrequency)
+                            setTimeout(() => {
+                                if (gColliderInfoArray[i] !== undefined) {
+                                    if (gColliderInfoArray[i].attackClass.sprite.active) {
+                                        gColliderInfoArray[i].collider.active = true;
+                                    }
+                                }
+                            }, gColliderInfoArray[i].attackClass.collisionFrequency)
                     }
                 }
             }
@@ -87,15 +91,29 @@ export class collision {
         let collider = this.gameScene.physics.add.overlap(aAttack.sprite, this.player.sprite, this.monsterAttackHitPlayer);
         let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack };
         gColliderInfoArray.push(collision_info);
+        for (let i = 0; i < this.brickArray.length; i++) {
+            this.gameScene.physics.add.collider(aAttack.sprite, this.brickArray[i], this.attackHitGround);
+        }
+        gAttackArray.push(aAttack);
     }
 
     monsterAttackHitPlayer(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aPlayer: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
-
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
                 if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
                     gColliderInfoArray[i].collider.destroy();
+                }
+            }
+        }
+    }
+
+    attackHitGround(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aGround: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
+        for (let i = 0; i < gAttackArray.length; i++) {
+            if (aAttack == gAttackArray[i].sprite) {
+                console.log(gAttackArray[i].hitGround);
+                if (gAttackArray[i].hitGround !== undefined) {
+                    gAttackArray[i].hitGround();
                 }
             }
         }
@@ -108,6 +126,28 @@ export class collision {
     addCrystal(aCrystal: monster_crystal) {
         this.gameScene.physics.add.collider(aCrystal.sprite, this.player.sprite);
         gCrystalArray.push(aCrystal);
+    }
+
+    update() {
+        this.updateAttackArray();
+        this.updateColliderArray();
+    }
+
+    private updateAttackArray() {
+        for (let i = 0; i < gAttackArray.length; i++) {
+            if (!gAttackArray[i].sprite.active) {
+                gAttackArray.splice(gAttackArray.indexOf(gAttackArray), 1)
+            }
+        }
+    }
+
+    private updateColliderArray() {
+        for (let i = 0; i < gColliderInfoArray.length; i++) {
+            if (!gColliderInfoArray[i].attackClass.sprite.active) {
+                gColliderInfoArray.splice(i, 1)
+            }
+        }
+
     }
 }
 

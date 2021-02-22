@@ -68,6 +68,7 @@ export class monster_skeleton {
 
     public update() {
         this.machine();
+        this.axeMachine();
     }
 
     public getPostision(aPlayerPosition: Phaser.Math.Vector2) {
@@ -86,9 +87,9 @@ export class monster_skeleton {
             this.gameScene.sound.play('monster1_dead');
         }
         else {
-            let rand_sound = Math.floor(Math.random() * 3) + 1;
             this.gameScene.sound.play(`monster1_damage1`);
         }
+        this.axeStateValue = "idle";
     }
 
     public isStunned(aTime: number) {
@@ -100,6 +101,7 @@ export class monster_skeleton {
         this.lastStunTick = utils.getTick();
         this.stunnedTime = aTime;
         this.spriteStateValue = "stunned";
+        this.axeStateValue = "idle";
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
@@ -216,11 +218,12 @@ export class monster_skeleton {
 
 
     private axeMachine() {
-        switch (this.spriteStateValue) {
+        switch (this.axeStateValue) {
             case "idle": {
                 break;
             }
             case "start": {
+                console.log("doAttack");
                 if (this.doThrow()){
                     this.axeStateValue = "idle";
                 }
@@ -398,9 +401,15 @@ export class monster_skeleton {
 
     private doThrow() {
         this.sprite.setVelocityX(this.sprite.body.velocity.x * 0.1);
-        if (utils.tickElapsed(this.lastAttackTick) >= 500) {
+        if (utils.tickElapsed(this.lastAttackTick) >= 750) {
             this.axeEffect = new monster_skeleton_axe(this.gameScene, this.collision);
-            this.axeEffect.sprite.setVelocity(400, -50);
+            let pos = this.sprite.getCenter();
+            this.axeEffect.create(pos.x, pos.y);
+            if(!this.sprite.flipX){
+                this.axeEffect.sprite.setVelocity(400, -100);
+            } else {
+                this.axeEffect.sprite.setVelocity(-400, -100);
+            }
             return true;
         }
         return false;

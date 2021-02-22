@@ -7,8 +7,7 @@ import { monster_skeleton } from 'src/app/modules/monsters/monster_skeleton/mons
 import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monster_crystal';
 import { monsterType, isCrystal } from 'src/app/modules/monsters/monster_type';
 import { utils } from 'src/app/modules/utils';
-import { monster_data, monsterParam  } from './monster_spawn';
-import { spawn } from 'child_process';
+import { monster_data, monsterParam } from './monster_spawn';
 
 
 type players = character_swordsman;
@@ -19,7 +18,7 @@ export class monsterControl {
     monsterArray: Array<monsterType> = [];
     anims1Created: boolean = false;
     gridArray: integer[][];
-    monsterLimit: number = 100;
+    monsterLimit: number = 4;
     scoreGained: number = 0;
     roundPlaying: boolean = false;
     lastRoundTick!: number;
@@ -45,26 +44,34 @@ export class monsterControl {
 
     }
 
-    private monsterSpawn(pos_x: number, pos_y: number){
-        let newmonster: monsterParam = {name:'', appearRate: 0, count: 0};
-        for (let i = 0; i < this.monsterParam.length; i ++){
+    private monsterSpawn(pos_x: number, pos_y: number) {
+        let newmonster: monsterParam = { name: '', appearRate: 0, count: 0 };
+        for (let i = 0; i < this.monsterParam.length; i++) {
             let spawnRoll = Math.random();
-            if (this.monsterParam[i].appearRate >= spawnRoll){
+            if (this.monsterParam[i].appearRate >= spawnRoll) {
                 newmonster = this.monsterParam[i];
                 break;
             }
         }
-        console.log(newmonster.count)
-        if (newmonster.count <= 0){
-            return;
+
+        if (newmonster.count <= 0) {
+            for (let i = 0; i < this.monsterParam.length; i++) {
+                if (this.monsterParam[i].count > 0) {
+                    newmonster = this.monsterParam[i];
+                    break;
+                }
+                else {
+                    return;
+                }
+            }
         }
-        newmonster.count --;
-        
+        newmonster.count--;
+
         switch (newmonster.name) {
             case "zombie": {
                 this.addMonsterZombie(pos_x, pos_y);
                 break;
-            } 
+            }
             case "skeleton": {
                 this.addMonsterSkeleton(pos_x, pos_y);
                 break;
@@ -77,20 +84,14 @@ export class monsterControl {
 
     private addMonsterSkeleton(pos_x: number, pos_y: number) {
         let monster = new monster_skeleton(this.gameScene, this.collision, this.gridArray);
-        if (this.anims1Created == false) {
-            monster.createAnims(this.gameScene);
-            this.anims1Created = true;
-        }
+        monster.createAnims(this.gameScene);
         monster.create(this.gameScene, pos_x, pos_y);
         this.monsterArray.push(monster);
     }
 
     private addMonsterZombie(pos_x: number, pos_y: number) {
         let monster = new monster_zombie(this.gameScene, this.collision, this.gridArray);
-        if (this.anims1Created == false) {
-            monster.createAnims(this.gameScene);
-            this.anims1Created = true;
-        }
+        monster.createAnims(this.gameScene);
         monster.create(this.gameScene, pos_x, pos_y);
         this.monsterArray.push(monster);
     }
@@ -142,12 +143,12 @@ export class monsterControl {
         this.roundPlaying = true;
         this.addMonsterCrystal(14.5, 50);
         this.addMonsterCrystal(785.5, 50);
-        this.currRound ++;
+        this.currRound++;
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
 
     }
 
-    private endRound(){
+    private endRound() {
         this.roundPlaying = false;
         this.lastRoundTick = utils.getTick();
         this.scoreGained += this.scorePerRound;
@@ -162,7 +163,7 @@ export class monsterControl {
         return score;
     }
 
-    public getRound(){
+    public getRound() {
         return this.currRound;
     }
 }

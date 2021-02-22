@@ -107,6 +107,7 @@ class MainScene extends Phaser.Scene {
     //sprite update
     this.player.update();
     this.monsterControl.update(this.player);
+    this.collision.update();
 
     //interface update
     this.score += this.monsterControl.getScore();

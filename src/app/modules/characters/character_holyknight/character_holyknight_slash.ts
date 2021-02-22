@@ -40,7 +40,6 @@ export class character_sword_slash {
 
     public hitMonster(aMonster: monsterType) {
         aMonster.isDamaged(this.damage);
-        aMonster.isStunned(this.stunTime);
         console.log("monster hit" + aMonster.healthPoint);
         this.energyGained += 2;
     }

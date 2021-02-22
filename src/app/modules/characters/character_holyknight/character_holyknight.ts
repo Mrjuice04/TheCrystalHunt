@@ -22,6 +22,7 @@ export class character_swordsman {
     canAttack: boolean = true;
     canMove: boolean = true;
     isDead: boolean = false;
+    isInvulnerable: boolean = false;
 
     private attackCounter: integer = 0;
     gameScene: Phaser.Scene;
@@ -37,9 +38,10 @@ export class character_swordsman {
     private blastChargingTime!: number;
     private blastEnergyTick!: number
     private initHeight!: number;
-    private lastStunTick!: number;
     private lastJumpTick!: number;
+    private lastStunTick!: number;
     private stunnedTime!: number;
+    private lastDogeTick!: number;
 
     //keys
     private keyZ!: Phaser.Input.Keyboard.Key;
@@ -55,6 +57,7 @@ export class character_swordsman {
     private shieldStateValue: string = "idle";
     private chargeStateValue: string = "idle";
     private blastStateValue: string = "idle";
+    private dogeStateValue: string = "idle";
 
     //effects
     private slashEffect!: character_sword_slash;
@@ -121,6 +124,7 @@ export class character_swordsman {
             this.shieldMachine();
             this.spriteMachine();
             this.blastMachine();
+            this.dogeMachine();
             this.limitValues();
         }
     }
@@ -157,6 +161,12 @@ export class character_swordsman {
         });
 
         this.gameScene.anims.create({
+            key: "doge",
+            frames: this.gameScene.anims.generateFrameNumbers("character_holyknight", { start: 28, end: 33 }),
+            frameRate: 10,
+        })
+
+        this.gameScene.anims.create({
             key: "ability_dash",
             frames: this.gameScene.anims.generateFrameNumbers("ability_dash", { start: 0, end: 4 }),
             frameRate: 20,
@@ -179,30 +189,38 @@ export class character_swordsman {
             frames: this.gameScene.anims.generateFrameNumbers("ability_blast", { start: 0, end: 3 }),
             frameRate: 10,
         })
+
+        
+
     }
 
     public isStunned(aTime: number) {
-        this.sprite.setAccelerationX(0);
-        this.sprite.setVelocityX(0);
-        this.lastStunTick = utils.getTick();
-        this.stunnedTime = aTime;
-        this.spriteStateValue = "stunned"
+        if (!this.isInvulnerable) {
+            this.sprite.setAccelerationX(0);
+            this.sprite.setVelocityX(0);
+            this.lastStunTick = utils.getTick();
+            this.stunnedTime = aTime;
+            this.spriteStateValue = "stunned"
+            this.chargeStateValue = "idle";
+        }
     }
 
     public isDamaged(aDamage: number) {
-        this.healthPoint -= aDamage;
-        this.interface.changeHealthBar(this.healthPoint);
-        this.sprite.setTint(0xF86161);
-        setTimeout(() => {
-            this.sprite.clearTint();
-        }, 200)
-        if (this.healthPoint <= 0) {
-            this.gameScene.sound.play('character_dead');
-        }
-        else {
+        if (!this.isInvulnerable) {
+            this.healthPoint -= aDamage;
+            this.interface.changeHealthBar(this.healthPoint);
+            this.sprite.setTint(0xF86161);
             setTimeout(() => {
-                this.gameScene.sound.play('character_damage');
+                this.sprite.clearTint();
             }, 200)
+            if (this.healthPoint <= 0) {
+                this.gameScene.sound.play('character_dead');
+            }
+            else {
+                setTimeout(() => {
+                    this.gameScene.sound.play('character_damage');
+                }, 200)
+            }
         }
     }
 
@@ -234,15 +252,16 @@ export class character_swordsman {
                 } else if (this.checkBlast()) {
                     this.spriteStateValue = "attacking";
                     this.blastStateValue = "start";
+                } else if (this.checkDoge()) {
+                    this.spriteStateValue = "dodging";
+                    this.dogeStateValue = "start";
                 } else {
                     this.isIdle();
                 }
                 break;
             }
             case "walking": {
-                if (!this.canMove) {
-                    this.spriteStateValue = "idle";
-                } else if (this.checkJump()) {
+                if (this.checkJump()) {
                     this.doJump();
                     this.spriteStateValue = "jumping";
                 } else if (this.checkSlash()) {
@@ -257,6 +276,9 @@ export class character_swordsman {
                 } else if (this.checkBlast()) {
                     this.spriteStateValue = "attacking";
                     this.blastStateValue = "start";
+                } else if (this.checkDoge()) {
+                    this.spriteStateValue = "dodging";
+                    this.dogeStateValue = "start";
                 } else if (!this.doWalking()) {
                     this.spriteStateValue = "idle";
                 }
@@ -264,10 +286,10 @@ export class character_swordsman {
             }
             case "jumping": {
                 this.doWalking();
-                if (this.check_doubleJump()) {
-                    this.do_doubleJump();
+                if (this.checkDoubleJump()) {
+                    this.doDoubleJump();
                     this.spriteStateValue = "doubleJumping";
-                } else if (this.is_jump_end()) {
+                } else if (this.isJumpEnd()) {
                     this.spriteStateValue = "idle"
                 } else if (this.checkShield()) {
                     this.spriteStateValue = "attacking_spin_1";
@@ -276,14 +298,19 @@ export class character_swordsman {
             }
             case "doubleJumping": {
                 this.doWalking();
-                if (this.is_jump_end()) {
+                if (this.isJumpEnd()) {
                     this.spriteStateValue = "idle"
+                }
+                break;
+            }
+            case "dodging":{
+                if (this.dogeStateValue == "idle"){
+                    this.spriteStateValue = "idle";
                 }
                 break;
             }
             case "stunned": {
                 if (this.isStunEnd()) {
-                    console.log("stunned");
                     this.spriteStateValue = "idle";
                 }
                 break;
@@ -305,6 +332,29 @@ export class character_swordsman {
             }
             default: {
                 this.spriteStateValue = "idle"
+                break;
+            }
+        }
+    }
+
+    private dogeMachine() {
+        switch (this.dogeStateValue) {
+            case "idle": {
+                break;
+            }
+            case "start": {
+                this.doDoge();
+                this.dogeStateValue = "playing";
+                break;
+            }
+            case "playing": {
+                if (this.checkDogeEnd()){
+                    this.dogeStateValue = "idle"
+                };
+                break;
+            }
+            default: {
+                this.dogeStateValue = "idle"
                 break;
             }
         }
@@ -450,7 +500,7 @@ export class character_swordsman {
     }
 
     private checkJump(): boolean {
-        if (this.canMove && this.sprite.body.touching.down && this.cursors.up.isDown) {
+        if (this.sprite.body.touching.down && this.cursors.up.isDown) {
             return true;
         }
         return false;
@@ -462,29 +512,59 @@ export class character_swordsman {
         this.lastJumpTick = utils.getTick();
     }
 
-    private check_doubleJump(): boolean {
+    private checkDoubleJump(): boolean {
         let curr_height = this.sprite.getCenter().y;
-        if (this.canMove && (((curr_height - this.initHeight) <= -40) || (utils.tickElapsed(this.lastJumpTick) >= 400) || this.lastJumpTick == undefined) && this.cursors.up.isDown) {
+        if ((((curr_height - this.initHeight) <= -40) || (utils.tickElapsed(this.lastJumpTick) >= 400) || this.lastJumpTick == undefined) && this.cursors.up.isDown) {
             return true;
         }
         return false;
     }
 
-    private do_doubleJump() {
+    private doDoubleJump() {
         this.sprite.setVelocityY(-150);
     }
 
-    private is_jump_end() {
+    private isJumpEnd() {
         if (this.sprite.body.touching.down) {
             return true;
         }
         return false;
     }
 
+    private checkDoge() {
+        if (this.sprite.body.touching.down && this.cursors.down.isDown && (utils.tickElapsed(this.lastDogeTick) >= 1000 || this.lastDogeTick == undefined)) {
+            this.lastDogeTick = utils.getTick();
+            return true;
+        }
+        return false;
+    }
 
+    private doDoge() {
+        if (!this.sprite.flipX) {
+            this.sprite.setVelocityX(125);
+        } else {
+            this.sprite.setVelocityX(-125);
+        }
+        this.isInvulnerable = true;
+        this.sprite.setPushable(false);
+        this.sprite.anims.play("doge");
+    }
+
+    private checkDogeEnd() {
+        if(utils.tickElapsed(this.lastDogeTick) >= 500){
+            this.isInvulnerable = false;
+            this.sprite.setPushable(true);
+
+            return true;
+        }
+        return false;
+
+    }
+
+    //character specific
     //basic Attack
     private checkSlash() {
-        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= 500)) && this.keyA.isDown) {
+        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= 600)) && this.keyA.isDown) {
             this.lastSlashTick = utils.getTick();
             return true;
         }
@@ -639,7 +719,7 @@ export class character_swordsman {
 
 
     private checkShieldEnd() {
-        if ((this.energyPoint <= 0) || ((utils.tickElapsed(this.lastShieldTick) >= 1500) && this.keyD.isDown) ||(utils.tickElapsed(this.lastShieldTick) >= 5000)) {
+        if ((this.energyPoint <= 0) || ((utils.tickElapsed(this.lastShieldTick) >= 1500) && this.keyD.isDown) || (utils.tickElapsed(this.lastShieldTick) >= 5000)) {
             this.sprite.setPushable(true);
             this.shieldEffect.destroy();
             return true;
@@ -668,11 +748,11 @@ export class character_swordsman {
             this.blastChargingTime = 2000;
             this.lastBlastTick = utils.getTick();
             return true;
-        } else if (this.spriteStateValue == "stunned"){
+        } else if (this.spriteStateValue == "stunned") {
             this.blastChargingTime = this.keyQ.getDuration();
             this.lastBlastTick = utils.getTick();
         }
-        if(utils.tickElapsed(this.blastEnergyTick) >= 250){
+        if (utils.tickElapsed(this.blastEnergyTick) >= 250) {
             this.blastEnergyTick = utils.getTick();
             this.decEnergy(6.25);
         }

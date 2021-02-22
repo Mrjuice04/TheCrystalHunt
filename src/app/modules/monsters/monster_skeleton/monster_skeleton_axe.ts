@@ -25,10 +25,11 @@ export class monster_skeleton_axe{
         aPlayer.isDamaged(this.damage);
         aPlayer.isStunned(this.stunTime);
         console.log("Player Hit. Health: " + aPlayer.healthPoint);
+        this.destroy();
     }
 
-    hitGroud(){
-        
+    hitGround(){
+        this.destroy();
     }
 
     playAnims() {
