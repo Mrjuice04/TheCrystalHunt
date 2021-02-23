@@ -3,7 +3,7 @@ import { character_swordsman } from 'src/app/modules/characters/character_holykn
 
 
 
-export class monster_skeleton_axe{
+export class monster_skeleton_bone{
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     collision: collision;
@@ -16,7 +16,8 @@ export class monster_skeleton_axe{
     }
 
     create(aPosX: number, aPosY: number){
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "bite");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "bone").setScale(0.2, 0.2);
+        this.playAnims();
         this.sprite.body.setAllowGravity(true);
         this.collision.addMonsterAttack(this);
     }
@@ -33,7 +34,7 @@ export class monster_skeleton_axe{
     }
 
     playAnims() {
-        this.sprite.anims.play("bite");
+        this.sprite.anims.play("bone");
     }
 
     destroy(){

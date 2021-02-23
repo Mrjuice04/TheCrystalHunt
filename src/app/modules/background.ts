@@ -10,8 +10,8 @@ export class background {
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision) {
-        aScene.load.image("brick", "./assets/gameScene/stone_tile.png")
-        aScene.load.image("grass", "./assets/gameScene/grass_tile.png")
+        aScene.load.image("brick", "./assets/gameScene/stone_tile.png");
+        aScene.load.image("grass", "./assets/gameScene/grass_tile.png");
         this.collision = aCollision;
         this.gameScene = aScene;
     }

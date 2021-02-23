@@ -10,7 +10,7 @@ export class monster_zombie {
     gameScene: Phaser.Scene;
     monsterToPlayerX!: number;
     monsterToPlayerY!: number;
-    healthPoint: number = 100;
+    healthPoint: number = 200;
     canSpawnMonster: boolean = false;
     gridArray: integer[][];
     state_value: string = "walking";
@@ -93,6 +93,17 @@ export class monster_zombie {
             let rand_sound = Math.floor(Math.random() * 3) + 1;
             this.gameScene.sound.play(`monster1_damage1`);
         }
+    }
+
+    public isHealed(aHeal: number){
+        this.healthPoint += aHeal;
+        if(this.healthPoint > 200){
+            this.healthPoint = 200;
+        }
+        this.sprite.setTint(0xBCF5A9);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
     }
 
     public isStunned(aTime: number) {

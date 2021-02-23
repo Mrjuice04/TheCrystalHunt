@@ -754,7 +754,7 @@ export class character_swordsman {
         }
         if (utils.tickElapsed(this.blastEnergyTick) >= 250) {
             this.blastEnergyTick = utils.getTick();
-            this.decEnergy(6.25);
+            this.decEnergy(8);
         }
         return false;
     }

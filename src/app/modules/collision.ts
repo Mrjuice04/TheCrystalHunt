@@ -92,7 +92,7 @@ export class collision {
         let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack };
         gColliderInfoArray.push(collision_info);
         for (let i = 0; i < this.brickArray.length; i++) {
-            this.gameScene.physics.add.collider(aAttack.sprite, this.brickArray[i], this.attackHitGround);
+            this.gameScene.physics.add.overlap(aAttack.sprite, this.brickArray[i], this.attackHitGround);
         }
         gAttackArray.push(aAttack);
     }

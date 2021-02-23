@@ -5,12 +5,18 @@ import { utils } from 'src/app/modules/utils';
 export class monster_crystal {
     gameScene: Phaser.Scene
     collision: collision;
-    healthPoint: number = 200;
+    healthPoint: number = 400;
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     lastSpawnTick!: number;
-    canSpawn: boolean = false;
+    lastHealTick!: number;
+
     destoryed: boolean = false;
-    spawnTime: number = 10500;
+
+    
+    spawnTime: number = 20500;
+    canSpawn: boolean = false;
+    healTime: number = 5000;
+    canHeal: boolean = false;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision) {
@@ -20,7 +26,6 @@ export class monster_crystal {
 
     static loadSprite(aScene: Phaser.Scene) {
         aScene.load.spritesheet("crystal", "./assets/monsters/monster_crystal/crystal.png", { frameWidth: 58, frameHeight: 100 });
-
     }
 
     //General Functions
@@ -56,17 +61,37 @@ export class monster_crystal {
 
     }
 
+    
+    public isHealed(aHeal: number){
+        this.healthPoint += aHeal;
+        if(this.healthPoint > 400){
+            this.healthPoint = 400;
+        }
+        this.sprite.setTint(0xBCF5A9);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
+    }
+
     public update() {
         this.checkSpawn();
+        this.checkHeal();
     }
 
     public checkSpawn() {
         if (this.lastSpawnTick == undefined || utils.tickElapsed(this.lastSpawnTick) >= this.spawnTime) {
             this.canSpawn = true;
             this.lastSpawnTick = utils.getTick();
-            if (this.spawnTime >= 5000) {
-                this.spawnTime -= 500;
+            if (this.spawnTime >= 10000) {
+                this.spawnTime -= 1000;
             }
+        }
+    }
+
+    private checkHeal() {
+        if (this.lastHealTick == undefined || utils.tickElapsed(this.lastHealTick) >= this.healTime) {
+            this.canHeal = true;
+            this.lastHealTick = utils.getTick();
         }
     }
 

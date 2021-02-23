@@ -91,6 +91,8 @@ class MainScene extends Phaser.Scene {
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
     this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
+    this.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
+
   }
 
   create() {

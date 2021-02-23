@@ -1,6 +1,6 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { collision } from 'src/app/modules/collision';
-import { monster_skeleton_axe } from 'src/app/modules/monsters/monster_skeleton/monster_skeleton_axe';
+import { monster_skeleton_bone } from 'src/app/modules/monsters/monster_skeleton/monster_skeleton_bone';
 import { utils } from 'src/app/modules/utils';
 
 export class monster_skeleton {
@@ -14,7 +14,7 @@ export class monster_skeleton {
     canSpawnMonster: boolean = false;
     gridArray: integer[][];
     jump_target!: number;
-    maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
+    maxVelocityX: number = Math.round(Phaser.Math.Between(110, 130));
     destoryed: boolean = false;
 
     // ticks
@@ -23,15 +23,16 @@ export class monster_skeleton {
     private lastDashTick!: number;
     private lastStunTick!: number;
     private lastSearchTick!: number
+    private lastTurnTick!: number;
     private stunnedTime!: number;
 
 
     //state values
-    private axeStateValue: string = "idle";
+    private boneStateValue: string = "idle";
     private spriteStateValue: string = "walking";
 
     //effects
-    private axeEffect: any;
+    private boneEffect: any;
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
         this.collision = aCollision;
@@ -41,7 +42,7 @@ export class monster_skeleton {
 
     static loadSprite(aScene: Phaser.Scene) {
         aScene.load.spritesheet("monster_skeleton", "./assets/monsters/monster_skeleton/monster_skeleton.png", { frameWidth: 26, frameHeight: 32 });
-        aScene.load.spritesheet("bite", "./assets/monsters/monster_zombie/monster_zombie_bite.png", { frameWidth: 11, frameHeight: 11 });
+        aScene.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
         aScene.load.audio('monster1_damage1', './assets/audio/hurt_222.wav');
         aScene.load.audio('monster1_damage2', './assets/audio/76967__michel88__paine.wav');
         aScene.load.audio('monster1_damage3', './assets/audio/76972__michel88__pains.wav');
@@ -68,7 +69,7 @@ export class monster_skeleton {
 
     public update() {
         this.machine();
-        this.axeMachine();
+        this.boneMachine();
     }
 
     public getPostision(aPlayerPosition: Phaser.Math.Vector2) {
@@ -89,7 +90,19 @@ export class monster_skeleton {
         else {
             this.gameScene.sound.play(`monster1_damage1`);
         }
-        this.axeStateValue = "idle";
+        this.boneStateValue = "idle";
+    }
+
+    
+    public isHealed(aHeal: number){
+        this.healthPoint += aHeal;
+        if(this.healthPoint > 100){
+            this.healthPoint = 100;
+        }
+        this.sprite.setTint(0xBCF5A9);
+        setTimeout(() => {
+            this.sprite.clearTint();
+        }, 200)
     }
 
     public isStunned(aTime: number) {
@@ -101,7 +114,7 @@ export class monster_skeleton {
         this.lastStunTick = utils.getTick();
         this.stunnedTime = aTime;
         this.spriteStateValue = "stunned";
-        this.axeStateValue = "idle";
+        this.boneStateValue = "idle";
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
@@ -144,12 +157,12 @@ export class monster_skeleton {
             repeat: -1,
         });
 
-        // this.gameScene.anims.create({
-        //     key: "monster_skeleton_bite",
-        //     frames: this.gameScene.anims.generateFrameNumbers("bite", { start: 0, end: 3 }),
-        //     frameRate: 10,
-        //     repeat: -1,
-        // })
+        this.gameScene.anims.create({
+            key: "bone",
+            frames: this.gameScene.anims.generateFrameNumbers("bone", { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1,
+        })
     }
 
 
@@ -167,7 +180,7 @@ export class monster_skeleton {
                     this.doJump();
                     this.spriteStateValue = "jumping";
                 } else if (this.checkAttack()) {
-                    this.axeStateValue = "start";
+                    this.boneStateValue = "start";
                     this.spriteStateValue = "attacking";
                 } else if (this.checkDash()) {
                     this.spriteStateValue = "dashing";
@@ -198,7 +211,7 @@ export class monster_skeleton {
                 break;
             }
             case "attacking": {
-                if (this.axeStateValue == "idle") {
+                if (this.boneStateValue == "idle") {
                     this.spriteStateValue = "walking"
                 }
                 break;
@@ -217,40 +230,77 @@ export class monster_skeleton {
     }
 
 
-    private axeMachine() {
-        switch (this.axeStateValue) {
+    private boneMachine() {
+        switch (this.boneStateValue) {
             case "idle": {
                 break;
             }
             case "start": {
                 console.log("doAttack");
-                if (this.doThrow()){
-                    this.axeStateValue = "idle";
+                if (this.doThrow()) {
+                    this.boneStateValue = "idle";
                 }
                 break;
             }
             default: {
-                this.axeStateValue = "idle";
+                this.boneStateValue = "idle";
                 break;
             }
         }
     }
 
+    // if (utils.tickElapsed(this.lastTurnTick) >= 500 || this.lastTurnTick == undefined)
     private walking() {
         if (this.monsterToPlayerY <= 10 && this.monsterToPlayerY >= -10) {
-            if (this.sprite.flipX) {
-                if (this.monsterToPlayerX <= 0) {
-                    this.sprite.flipX = false;
-                    this.sprite.setAccelerationX(100);
-                } else {
-                    this.sprite.setAccelerationX(-100);
+            if (!this.sprite.flipX) {
+                if (this.sprite.getCenter().x < 20 && this.monsterToPlayerX > -300){
+                    this.sprite.setVelocityX(0);
+                    this.sprite.setAccelerationX(0);
+                    this.sprite.anims.play("monster_skeleton_idle", true);
+                    return;
                 }
-            } else {
-                if (this.monsterToPlayerX >= 0) {
+                if (this.monsterToPlayerX <= -300) {
+                    this.sprite.setAccelerationX(100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
+                } else if (this.monsterToPlayerX > -300 && this.monsterToPlayerX < -100) {
+                    this.sprite.setVelocityX(0);
+                    this.sprite.setAccelerationX(0);
+                    this.sprite.anims.play("monster_skeleton_idle", true);
+                } else if (this.monsterToPlayerX > 0 && this.monsterToPlayerX < 150){
+                    this.sprite.setAccelerationX(100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
+                } else {
                     this.sprite.flipX = true;
                     this.sprite.setAccelerationX(-100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
+                }
+                if (this.sprite.getCenter().x > 780){
+                    this.sprite.flipX = true;
+                }
+            } else {
+                if (this.sprite.getCenter().x > 780 && this.monsterToPlayerX < 300){
+                    this.sprite.setVelocityX(0);
+                    this.sprite.setAccelerationX(0);
+                    this.sprite.anims.play("monster_skeleton_idle", true);
+                    return;
+                }
+                if (this.monsterToPlayerX >= 300) {
+                    this.sprite.setAccelerationX(-100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
+                } else if (this.monsterToPlayerX < 300 && this.monsterToPlayerX > 100) {
+                    this.sprite.setVelocityX(0);
+                    this.sprite.setAccelerationX(0);
+                    this.sprite.anims.play("monster_skeleton_idle", true);
+                } else if (this.monsterToPlayerX < 0 && this.monsterToPlayerX > -150){
+                    this.sprite.setAccelerationX(-100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
                 } else {
+                    this.sprite.flipX = false;
                     this.sprite.setAccelerationX(100);
+                    this.sprite.anims.play("monster_skeleton_move", true);
+                }
+                if (this.sprite.getCenter().x < 20){
+                    this.sprite.flipX = false;
                 }
             }
         } else {
@@ -402,13 +452,13 @@ export class monster_skeleton {
     private doThrow() {
         this.sprite.setVelocityX(this.sprite.body.velocity.x * 0.1);
         if (utils.tickElapsed(this.lastAttackTick) >= 750) {
-            this.axeEffect = new monster_skeleton_axe(this.gameScene, this.collision);
+            this.boneEffect = new monster_skeleton_bone(this.gameScene, this.collision);
             let pos = this.sprite.getCenter();
-            this.axeEffect.create(pos.x, pos.y);
-            if(!this.sprite.flipX){
-                this.axeEffect.sprite.setVelocity(400, -100);
+            this.boneEffect.create(pos.x, pos.y);
+            if (!this.sprite.flipX) {
+                this.boneEffect.sprite.setVelocity(400, -100);
             } else {
-                this.axeEffect.sprite.setVelocity(-400, -100);
+                this.boneEffect.sprite.setVelocity(-400, -100);
             }
             return true;
         }

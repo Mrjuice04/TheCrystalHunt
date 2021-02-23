@@ -18,12 +18,12 @@ export class monsterControl {
     monsterArray: Array<monsterType> = [];
     anims1Created: boolean = false;
     gridArray: integer[][];
-    monsterLimit: number = 4;
+    monsterLimit: number = 10;
     scoreGained: number = 0;
     roundPlaying: boolean = false;
     lastRoundTick!: number;
     scorePerRound: number = 1000;
-    currRound: number = 1;
+    currRound: number = 0;
     monsterData: monster_data = new monster_data();
     monsterParam!: Array<monsterParam>;
 
@@ -33,7 +33,7 @@ export class monsterControl {
         this.collision = aCollision;
         this.gridArray = aGridArray;
         monster_zombie.loadSprite(this.gameScene);
-        monster_crystal.loadSprite(this.gameScene)
+        monster_crystal.loadSprite(this.gameScene);
 
         // let monster: Array<monsterParam> = this.monsterData.getArray('round1');
         // console.log ('monster: ' + JSON.stringify(monster));
@@ -55,14 +55,10 @@ export class monsterControl {
         }
 
         if (newmonster.count <= 0) {
-            for (let i = 0; i < this.monsterParam.length; i++) {
-                if (this.monsterParam[i].count > 0) {
-                    newmonster = this.monsterParam[i];
-                    break;
-                }
-                else {
-                    return;
-                }
+            if (this.monsterParam[this.monsterParam.length - 1].count > 0) {
+                newmonster = this.monsterParam[this.monsterParam.length - 1];
+            } else {
+                return;
             }
         }
         newmonster.count--;
@@ -117,6 +113,15 @@ export class monsterControl {
                         this.monsterSpawn(pos.x, pos.y);
                         curr_monster.canSpawn = false;
                     }
+                    if (curr_monster.canHeal) {
+                        for (let i = 0; i < this.monsterArray.length; i++) { 
+                            let curr_healing_monster = this.monsterArray[i];
+                            if (!isCrystal(curr_healing_monster)){
+                                curr_healing_monster.isHealed(30);
+                            }
+                        }
+                        curr_monster.canHeal = false;
+                    }
                 }
                 //life check
                 if (curr_monster.healthPoint <= 0) {
@@ -141,8 +146,10 @@ export class monsterControl {
 
     private startRound() {
         this.roundPlaying = true;
-        this.addMonsterCrystal(14.5, 50);
-        this.addMonsterCrystal(785.5, 50);
+        let pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
+        this.addMonsterCrystal(14.5, pos_y);
+        pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
+        this.addMonsterCrystal(785.5, pos_y);
         this.currRound++;
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
 
