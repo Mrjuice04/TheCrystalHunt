@@ -152,8 +152,8 @@ export class monsterControl {
         this.addMonsterCrystal(785.5, pos_y);
         this.currRound++;
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
-
     }
+    
 
     private endRound() {
         this.roundPlaying = false;

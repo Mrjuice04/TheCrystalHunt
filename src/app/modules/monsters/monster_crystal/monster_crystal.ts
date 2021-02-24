@@ -41,7 +41,7 @@ export class monster_crystal {
         this.sprite.setImmovable(true);
         this.sprite.body.setAllowGravity(false);
         this.sprite.tint = 0xEBB4FF
-        this.collision.addCrystal(this);
+        this.collision.addMonster(this);
 
     }
 

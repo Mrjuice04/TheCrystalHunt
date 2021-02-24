@@ -74,13 +74,13 @@ export class collision {
                         gColliderInfoArray[i].collider.destroy();
                     } else {
                         gColliderInfoArray[i].collider.active = false;
-                            setTimeout(() => {
-                                if (gColliderInfoArray[i] !== undefined) {
-                                    if (gColliderInfoArray[i].attackClass.sprite.active) {
-                                        gColliderInfoArray[i].collider.active = true;
-                                    }
+                        setTimeout(() => {
+                            if (gColliderInfoArray[i] !== undefined) {
+                                if (gColliderInfoArray[i].attackClass.sprite.active) {
+                                    gColliderInfoArray[i].collider.active = true;
                                 }
-                            }, gColliderInfoArray[i].attackClass.collisionFrequency)
+                            }
+                        }, gColliderInfoArray[i].attackClass.collisionFrequency)
                     }
                 }
             }
@@ -123,9 +123,25 @@ export class collision {
         gMonsterArray = aMonsterControl.monsterArray;
     }
 
-    addCrystal(aCrystal: monster_crystal) {
-        this.gameScene.physics.add.collider(aCrystal.sprite, this.player.sprite);
-        gCrystalArray.push(aCrystal);
+    addPlayerInteractiveItem(aItem: any) {
+        let collider = this.gameScene.physics.add.overlap(aItem.sprite, this.player.sprite, this.playerCollectItem);
+        let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aItem };
+        gColliderInfoArray.push(collision_info);
+        for (let i = 0; i < this.brickArray.length; i++) {
+            this.gameScene.physics.add.collider(aItem.sprite, this.brickArray[i]);
+        }
+    }
+
+    playerCollectItem(aItem: Phaser.Types.Physics.Arcade.ArcadeColliderType, aPlayer: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
+        for (let i = 0; i < gColliderInfoArray.length; i++) {
+            if (aItem == gColliderInfoArray[i].attackClass.sprite) {
+                if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
+                    gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
+                    gColliderInfoArray[i].collider.destroy();
+                }
+            }
+        }
+        
     }
 
     update() {

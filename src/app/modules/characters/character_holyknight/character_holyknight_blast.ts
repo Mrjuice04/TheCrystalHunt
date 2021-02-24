@@ -1,7 +1,7 @@
 import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
 import { utils } from 'src/app/modules/utils';
-import { monsterControl } from "../../monsters/monster_control";
+import { monsterControl } from "../../monsters/monsterControl";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 
 
@@ -23,7 +23,7 @@ export class character_sword_blast {
     }
 
     public create(aPosX: number, aPosY: number, aChargeTime: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_blast");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "blast_effect");
         this.sprite.body.setAllowGravity(false);
         this.damage += Phaser.Math.FloorTo(aChargeTime / 8);
         this.collision.addPlayerAttack(this);

@@ -25,7 +25,6 @@ export class monster_skeleton_bone{
     hitPlayer(aPlayer: character_swordsman){
         aPlayer.isDamaged(this.damage);
         aPlayer.isStunned(this.stunTime);
-        console.log("Player Hit. Health: " + aPlayer.healthPoint);
         this.destroy();
     }
 

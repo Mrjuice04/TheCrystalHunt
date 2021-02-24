@@ -1,7 +1,7 @@
 import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
 import { utils } from 'src/app/modules/utils';
-import { monsterControl } from "src/app/modules/monsters/monster_control";
+import { monsterControl } from "src/app/modules/monsters/monsterControl";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 
 
@@ -24,7 +24,7 @@ export class character_sword_shield {
     }
 
     create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "ability_shield").setScale(0.6, 0.6);
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "shield_effect").setScale(0.6, 0.6);
         this.gameScene.sound.add('ability_shield');
         this.sprite.body.setAllowGravity(false);
         this.playAnims();
@@ -33,7 +33,7 @@ export class character_sword_shield {
 
     playAnims() {
         this.sprite.anims.play("shield_effect", true)
-        this.gameScene.sound.play('ability_shield_2');
+        this.gameScene.sound.play('ability_shield');
     }
 
     hitMonster(aMonster: any) {

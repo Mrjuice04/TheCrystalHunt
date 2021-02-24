@@ -24,7 +24,6 @@ export class monster_zombie_bite{
     hitPlayer(aPlayer: character_swordsman){
         aPlayer.isDamaged(this.damage);
         aPlayer.isStunned(this.stunTime);
-        console.log("Player Hit. Health: " + aPlayer.healthPoint);
     }
 
     playAnims() {

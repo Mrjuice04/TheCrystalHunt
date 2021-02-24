@@ -37,7 +37,7 @@ export class game_interface{
         this.abilityIcon2 = this.gameScene.add.sprite(696, 572, 'ability2').setScale(0.45, 0.45);
         this.gameScene.add.text(696, 595, "D").setOrigin(0.5, 0.5).setFill("0xffffff");
         this.ultimateIcon = this.gameScene.add.sprite(767, 572, 'ultimate').setScale(0.2, 0.2);
-        this.gameScene.add.text(767, 595, "Q").setOrigin(0.5, 0.5).setFill("0xffffff");
+        this.gameScene.add.text(767, 595, "SPACE").setOrigin(0.5, 0.5).setFill("0xffffff");
     }
 
     public changeHealthBar(aHealthPoint: number){

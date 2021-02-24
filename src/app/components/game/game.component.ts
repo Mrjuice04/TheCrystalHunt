@@ -4,9 +4,10 @@ import Phaser from 'phaser';
 import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
 import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
-import { monsterControl } from 'src/app/modules/monsters/monster_control';
+import { monsterControl } from 'src/app/modules/monsters/monsterControl';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { game_interface } from 'src/app/modules/interface';
+import { mapItemControl } from 'src/app/modules/mapItems/mapItemControl';
 
 declare global {
   interface Window {
@@ -40,7 +41,7 @@ export class GameComponent implements OnInit {
           gravity: { y: 300 }
         }
       }
-    };    
+    };
   }
 
   ngOnInit() {
@@ -53,7 +54,7 @@ export class GameComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    console.log ("ngOnDestroy()");
+    console.log("ngOnDestroy()");
     if (this.phaserGame != undefined) {
       this.phaserGame.destroy(true);
     }
@@ -74,6 +75,7 @@ class MainScene extends Phaser.Scene {
   score: number = 0;
   bgm!: Phaser.Sound.BaseSound;
   currRound: number = 0;
+  mapItemControl!: mapItemControl;
 
   constructor() {
     super({ key: 'main' });
@@ -90,6 +92,7 @@ class MainScene extends Phaser.Scene {
     this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray());
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
+    this.mapItemControl = new mapItemControl(this, this.collision);
     this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
     this.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
 
@@ -97,27 +100,31 @@ class MainScene extends Phaser.Scene {
 
   create() {
     this.add.sprite(400, 300, "sky");
-    this.player.createAnims();
     this.player.create();
     this.background.createGrid();
     this.interface.create();
     this.sound.add("bgm");
-    this.sound.play("bgm" , {loop: true});
+    this.sound.play("bgm", { loop: true });
   }
 
   update() {
     //sprite update
     this.player.update();
     this.monsterControl.update(this.player);
-    this.collision.update();
+
 
     //interface update
     this.score += this.monsterControl.getScore();
     this.interface.changeScore(this.score);
-    this.currRound = this.monsterControl.currRound;
+    this.currRound = this.monsterControl.getRound();
     this.interface.changeRound(this.currRound);
+
+    //game update
+    this.mapItemControl.update(this.currRound);
+    this.collision.update();
+
     //gameover
-    if(this.player.checkDeath()){
+    if (this.player.checkDeath()) {
       if (window.onGameOver) {
         window.onGameOver();
       }
