@@ -1,7 +1,7 @@
 import { background } from 'src/app/modules/background';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { character_swordsman } from 'src/app/modules/characters/character_holyknight/character_holyknight';
-import { monsterControl } from 'src/app/modules/monsters/monster_control';
+import { monsterControl } from 'src/app/modules/monsters/monsterControl';
 import { IfStmt } from '@angular/compiler';
 import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monster_crystal';
 import { monsterType } from 'src/app/modules/monsters/monster_type';
