@@ -19,6 +19,10 @@ export class HomeComponent implements OnInit {
   }
 
   onAboutClicked(): void {
-    console.log ("onAboutClicked()");
+    this.router.navigate(['about']);
+  }
+
+  onInstructionClicked(): void {
+    this.router.navigate(['instruction']);
   }
 }
