@@ -3,6 +3,8 @@ import { collision } from 'src/app/modules/collision';
 import { utils } from 'src/app/modules/utils';
 import { monsterControl } from "../../monsters/monsterControl";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
+import { blastLevelParam, blastLevelData } from './character_holyknight_blast_level'
+
 
 
 export class character_sword_blast {
@@ -14,18 +16,30 @@ export class character_sword_blast {
     stunTime: number = 1000;
     oneTimeCollision: boolean = true;
     collisionFrequency: number = 0;
+    private levelData: blastLevelData = new blastLevelData();
+    private blastCount: number = 12;
+    private slowPercent: number = 0.4;
+    private level: number = 1;
+    private isExplosion: boolean = false;
+    private heal: number = 3;
+    private healthGained: number = 0;
 
 
-    constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl) {
+    constructor(aScene: Phaser.Scene, aCollision: collision, aMonsterControl: monsterControl, aLevel: number) {
+        let levelAttributes = this.levelData.getParam(aLevel);
         this.gameScene = aScene;
         this.collision = aCollision;
         this.monsterControl = aMonsterControl;
+        this.damage = levelAttributes.damage;
+        this.blastCount = levelAttributes.blastCount;
+        this.heal = levelAttributes.heal;
+        this.level = aLevel;
     }
 
     public create(aPosX: number, aPosY: number, aChargeTime: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "blast_effect");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "blast_effect").setScale(0.25, 0.25);
         this.sprite.body.setAllowGravity(false);
-        this.damage += Phaser.Math.FloorTo(aChargeTime / 8);
+        // this.damage *= Phaser.Math.FloorTo(aChargeTime / 100);
         this.collision.addPlayerAttack(this);
         setTimeout(() => {
             if (this.sprite) {
@@ -41,14 +55,49 @@ export class character_sword_blast {
 
     public hitMonster(aMonster: monster_zombie) {
         aMonster.isDamaged(this.damage);
-        console.log("monster hit" + aMonster.healthPoint);
-        aMonster.isStunned(this.stunTime);
+        aMonster.isSlowed(this.slowPercent);
+        if (this.level >= 2){
+            aMonster.isStunned(100);
+        }
+        let pos = this.sprite.getCenter();
+        let posX = pos.x
+        if (!this.sprite.flipX) {
+            posX += 20;
+        } else {
+            posX -= 20;
+        }
+
+        if (!this.isExplosion) {
+            this.healthGained += this.heal;
+            this.destroy();
+        }
+        if (!this.isExplosion && this.level >= 3) {
+            setTimeout(() => {
+                this.sprite = this.gameScene.physics.add.sprite(posX, pos.y, "shield_effect").setScale(0.25, 0.25);
+                this.sprite.anims.play("shield_effect_1", true);
+                this.sprite.body.setAllowGravity(false);
+                this.isExplosion = true;
+                this.collision.addPlayerAttack(this);
+                setTimeout(() => {
+                    this.sprite.destroy();
+                }, 300)
+            }, 100)
+        }
     }
 
-
-
     public destroy() {
+        let pos = this.sprite.getCenter();
         this.sprite.destroy();
+    }
+
+    public getBlastCount() {
+        return this.blastCount;
+    }
+
+    public getHealthGained(){
+        let health = this.healthGained;
+        this.healthGained = 0;
+        return health;
     }
 
 }

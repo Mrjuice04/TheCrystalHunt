@@ -8,6 +8,8 @@ import { monsterControl } from 'src/app/modules/monsters/monsterControl';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { game_interface } from 'src/app/modules/interface';
 import { mapItemControl } from 'src/app/modules/mapItems/mapItemControl';
+import { upgradeControl } from 'src/app/modules/mapItems/upgradeControl';
+
 
 declare global {
   interface Window {
@@ -76,6 +78,8 @@ class MainScene extends Phaser.Scene {
   bgm!: Phaser.Sound.BaseSound;
   currRound: number = 0;
   mapItemControl!: mapItemControl;
+  upgradeControl!: upgradeControl
+
 
   constructor() {
     super({ key: 'main' });
@@ -89,10 +93,11 @@ class MainScene extends Phaser.Scene {
     this.background = new background(this, this.collision);
     this.interface = new game_interface(this);
     this.player = new character_swordsman(this, this.collision, this.interface);
-    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray());
+    this.mapItemControl = new mapItemControl(this, this.collision);
+    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray(), this.mapItemControl);
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
-    this.mapItemControl = new mapItemControl(this, this.collision);
+    this.upgradeControl = new upgradeControl(this, this.collision);
     this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
     this.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
 
@@ -109,8 +114,8 @@ class MainScene extends Phaser.Scene {
 
   update() {
     //sprite update
-    this.player.update();
-    this.monsterControl.update(this.player);
+    this.player.update(this.monsterControl.getHealth());
+    this.monsterControl.update(this.player, this.upgradeControl.getUpdateEnd());
 
 
     //interface update
@@ -118,9 +123,11 @@ class MainScene extends Phaser.Scene {
     this.interface.changeScore(this.score);
     this.currRound = this.monsterControl.getRound();
     this.interface.changeRound(this.currRound);
+    this.interface.update();
 
     //game update
     this.mapItemControl.update(this.currRound);
+    this.upgradeControl.update(this.currRound, this.monsterControl.getRoundEnd());
     this.collision.update();
 
     //gameover

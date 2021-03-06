@@ -12,10 +12,12 @@ export class monster_crystal {
 
     destoryed: boolean = false;
 
+    public itemDropChance: number = 0;
+
     
-    spawnTime: number = 20500;
+    spawnTime: number = 15000;
     canSpawn: boolean = false;
-    healTime: number = 5000;
+    healTime: number = 3000;
     canHeal: boolean = false;
 
 
@@ -26,6 +28,7 @@ export class monster_crystal {
 
     static loadSprite(aScene: Phaser.Scene) {
         aScene.load.spritesheet("crystal", "./assets/monsters/monster_crystal/crystal.png", { frameWidth: 58, frameHeight: 100 });
+        aScene.load.audio('crystal_damaged', './assets/audio/metal_141.wav');
     }
 
     //General Functions
@@ -47,6 +50,22 @@ export class monster_crystal {
 
     public isDamaged(aDamage: number) {
         this.healthPoint -= aDamage;
+        this.sprite.setTint(0xF86161);
+        setTimeout(() => {
+            if (this.sprite.tintTopLeft == 0xF86161){
+                this.sprite.clearTint();
+            }
+        }, 200)
+        if (this.healthPoint <= 0) {
+            this.gameScene.sound.play('monster1_dead');
+        }
+        else {
+            let rand_sound = Math.floor(Math.random() * 3) + 1;
+            this.gameScene.sound.play(`crystal_damaged`);
+        }
+    }
+    public isSlowed(slowPercent: number) {
+       
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
@@ -82,9 +101,6 @@ export class monster_crystal {
         if (this.lastSpawnTick == undefined || utils.tickElapsed(this.lastSpawnTick) >= this.spawnTime) {
             this.canSpawn = true;
             this.lastSpawnTick = utils.getTick();
-            if (this.spawnTime >= 10000) {
-                this.spawnTime -= 1000;
-            }
         }
     }
 

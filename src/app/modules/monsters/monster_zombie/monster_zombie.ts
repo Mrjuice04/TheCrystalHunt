@@ -18,6 +18,8 @@ export class monster_zombie {
     maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
     destoryed: boolean = false;
 
+    public itemDropChance: number = 0.4;
+
     // ticks
     private lastAttackTick!: number;
     private lastJumpTick!: number;
@@ -84,7 +86,9 @@ export class monster_zombie {
         this.healthPoint -= aDamage;
         this.sprite.setTint(0xF86161);
         setTimeout(() => {
-            this.sprite.clearTint();
+            if (this.sprite.tintTopLeft == 0xF86161) {
+                this.sprite.clearTint();
+            }
         }, 200)
         if (this.healthPoint <= 0) {
             this.gameScene.sound.play('monster1_dead');
@@ -95,15 +99,22 @@ export class monster_zombie {
         }
     }
 
-    public isHealed(aHeal: number){
+    public isHealed(aHeal: number) {
         this.healthPoint += aHeal;
-        if(this.healthPoint > 200){
+        if (this.healthPoint > 200) {
             this.healthPoint = 200;
         }
         this.sprite.setTint(0xBCF5A9);
         setTimeout(() => {
-            this.sprite.clearTint();
+            if (this.sprite.tintTopLeft == 0xBCF5A9) {
+                this.sprite.clearTint();
+            }
         }, 200)
+    }
+
+    public isSlowed(slowPercent: number) {
+        let velocityX = this.sprite.body.velocity.x * slowPercent;
+        this.sprite.setVelocityX(velocityX);
     }
 
     public isStunned(aTime: number) {

@@ -11,22 +11,22 @@ export class itemData {
 
     constructor() {
         let round1_array: Array<itemParam> = [
-            { name: 'heal', appearRate: 0.3, count: 2 },
+            { name: 'heal', appearRate: 1, count: 10 },
         ];
         this.map.set("round1", round1_array);
 
         let round2_array: Array<itemParam> = [
-            { name: 'heal', appearRate: 0.3, count: 3 },
+            { name: 'heal', appearRate: 1, count: 3 },
         ];
         this.map.set("round2", round2_array);
 
         let round3_array: Array<itemParam> = [
-            { name: 'heal', appearRate: 0.3, count: 3 },
+            { name: 'heal', appearRate: 1, count: 3 },
         ];
         this.map.set("round3", round3_array);
         
         let round4_array: Array<itemParam> = [
-            { name: 'heal', appearRate: 0.3, count: 4 },
+            { name: 'heal', appearRate: 1, count: 4 },
         ];
         this.map.set("round4", round4_array);
         

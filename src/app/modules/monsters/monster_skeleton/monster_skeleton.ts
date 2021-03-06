@@ -17,6 +17,9 @@ export class monster_skeleton {
     maxVelocityX: number = Math.round(Phaser.Math.Between(110, 130));
     destoryed: boolean = false;
 
+    public itemDropChance: number = 0.4;
+
+
     // ticks
     private lastAttackTick!: number;
     private lastJumpTick!: number;
@@ -44,10 +47,9 @@ export class monster_skeleton {
         aScene.load.spritesheet("monster_skeleton", "./assets/monsters/monster_skeleton/monster_skeleton.png", { frameWidth: 26, frameHeight: 32 });
         aScene.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
         aScene.load.audio('monster1_damage1', './assets/audio/hurt_222.wav');
-        aScene.load.audio('monster1_damage2', './assets/audio/76967__michel88__paine.wav');
-        aScene.load.audio('monster1_damage3', './assets/audio/76972__michel88__pains.wav');
         aScene.load.audio('monster1_dead', './assets/audio/hurt_251.wav');
-        aScene.load.audio('monster1_attack', './assets/audio/hit_004.wav');
+        aScene.load.audio('skeleton_preapre_attack', './assets/audio/CCA_012.wav');
+        aScene.load.audio('skeleton_attack', './assets/audio/laser_018.wav');
     }
 
     //General Public Function
@@ -82,7 +84,9 @@ export class monster_skeleton {
         this.healthPoint -= aDamage;
         this.sprite.setTint(0xF86161);
         setTimeout(() => {
-            this.sprite.clearTint();
+            if (this.sprite.tintTopLeft == 0xF86161){
+                this.sprite.clearTint();
+            }
         }, 200)
         if (this.healthPoint <= 0) {
             this.gameScene.sound.play('monster1_dead');
@@ -101,8 +105,15 @@ export class monster_skeleton {
         }
         this.sprite.setTint(0xBCF5A9);
         setTimeout(() => {
-            this.sprite.clearTint();
+            if (this.sprite.tintTopLeft == 0xBCF5A9){
+                this.sprite.clearTint();
+            }
         }, 200)
+    }
+
+    public isSlowed(slowPercent: number) {
+        let velocityX = this.sprite.body.velocity.x / slowPercent;
+        this.sprite.setVelocityX(velocityX);
     }
 
     public isStunned(aTime: number) {
@@ -441,6 +452,7 @@ export class monster_skeleton {
                 if (this.sprite.body.touching.down) {
                     if (((this.lastAttackTick == undefined) || (utils.tickElapsed(this.lastAttackTick) >= 2500))) {
                         this.lastAttackTick = utils.getTick();
+                        this.gameScene.sound.play("skeleton_preapre_attack");
                         return true;
                     }
                 }
@@ -460,6 +472,7 @@ export class monster_skeleton {
             } else {
                 this.boneEffect.sprite.setVelocity(-400, -100);
             }
+            this.gameScene.sound.play("skeleton_attack");
             return true;
         }
         return false;
@@ -488,7 +501,7 @@ export class monster_skeleton {
     }
 
     public destroy() {
-        this.sprite.play("monster.die", true)
+        this.sprite.play("monster_skeleton_die", true)
         this.destoryed = true;
         setTimeout(() => {
             this.sprite.destroy();

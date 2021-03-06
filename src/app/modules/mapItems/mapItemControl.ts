@@ -1,7 +1,7 @@
 import { collision } from 'src/app/modules/collision';
 import { itemParam, itemData } from './itemSpawn';
 import { itemType } from './itemType';
-import { healCrystal } from './healCrystal'
+import { healCrystal, energyCrystal } from './healCrystal'
 import { utils } from '../utils';
 
 
@@ -30,27 +30,31 @@ export class mapItemControl {
             this.currRound = aRound;
             this.itemParam = this.itemData.getArray('round' + this.currRound);
         }
-        if (utils.tickElapsed(this.lastSpawnTick) >= 5000) {
-            this.itemSpawn();
-            this.lastSpawnTick = utils.getTick();
-        }
+        // if (utils.tickElapsed(this.lastSpawnTick) >= 5000) {
+        //     let pos_x = Math.floor(Math.random() * 800);
+        //     this.itemSpawn(pos_x, 25);
+        //     this.lastSpawnTick = utils.getTick();
+        // }
     }
 
 
-    private addHealCrystal() {
-        let newItem = new healCrystal(this.gameScene);
-        let pos_x = Math.floor(Math.random() * 800);
-        newItem.create(pos_x, 25);
-        console.log(newItem);
+    private addHealCrystal(pos_x: number, pos_y: number) {
+        let itemRoll = Math.random();
+        let newItem: itemType = new healCrystal(this.gameScene);
+        if (itemRoll < 0.6){
+            newItem = new healCrystal(this.gameScene);
+        } else {
+            newItem = new energyCrystal(this.gameScene);
+        }
+        newItem.create(pos_x, pos_y);
         this.collision.addPlayerInteractiveItem(newItem);
         this.itemArray.push(newItem);
     }
 
-    private itemSpawn() {
+    public itemSpawn(pos_x: number, pos_y: number) {
         let newItem: itemParam = { name: '', appearRate: 0, count: 0 };
         for (let i = 0; i < this.itemParam.length; i++) {
             let spawnRoll = Math.random();
-            console.log("itemRolled: " + spawnRoll + " and appearRate: " + this.itemParam[i].appearRate)
             if (this.itemParam[i].appearRate >= spawnRoll) {
                 newItem = this.itemParam[i];
                 break;
@@ -65,7 +69,7 @@ export class mapItemControl {
 
         switch (newItem.name) {
             case "heal": {
-                this.addHealCrystal();
+                this.addHealCrystal(pos_x, pos_y);
                 break;
             }
             default: {

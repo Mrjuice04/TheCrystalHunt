@@ -72,6 +72,8 @@ export class collision {
                     gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
                     if (gColliderInfoArray[i].attackClass.oneTimeCollision) {
                         gColliderInfoArray[i].collider.destroy();
+                        gColliderInfoArray.splice(i, 1)
+                        i--;
                     } else {
                         gColliderInfoArray[i].collider.active = false;
                         setTimeout(() => {
@@ -103,6 +105,8 @@ export class collision {
                 if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
                     gColliderInfoArray[i].collider.destroy();
+                    gColliderInfoArray.splice(i, 1)
+                    i--;
                 }
             }
         }
@@ -137,11 +141,11 @@ export class collision {
             if (aItem == gColliderInfoArray[i].attackClass.sprite) {
                 if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
-                    gColliderInfoArray[i].collider.destroy();
+                    // gColliderInfoArray[i].collider.destroy();
                 }
             }
         }
-        
+
     }
 
     update() {
@@ -152,7 +156,8 @@ export class collision {
     private updateAttackArray() {
         for (let i = 0; i < gAttackArray.length; i++) {
             if (!gAttackArray[i].sprite.active) {
-                gAttackArray.splice(gAttackArray.indexOf(gAttackArray), 1)
+                gAttackArray.splice(i, 1)
+                i--;
             }
         }
     }
@@ -160,10 +165,21 @@ export class collision {
     private updateColliderArray() {
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (!gColliderInfoArray[i].attackClass.sprite.active) {
+                console.log("delete")
                 gColliderInfoArray.splice(i, 1)
+                i--;
             }
         }
+    }
 
+    public deleteCollider(aClass: any) {
+        for (let i = 0; i < gColliderInfoArray.length; i++) {
+            if (aClass == gColliderInfoArray[i].attackClass || aClass == gColliderInfoArray[i].spriteClass) {
+                gColliderInfoArray[i].collider.destroy();
+                gColliderInfoArray.splice(i, 1)
+                i--;
+            }
+        }
     }
 }
 

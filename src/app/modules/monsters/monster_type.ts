@@ -6,5 +6,8 @@ import { monster_skeleton } from 'src/app/modules/monsters/monster_skeleton/mons
 export type monsterType = monster_zombie | monster_crystal | monster_skeleton;
 
 export function isCrystal(target: monsterType): target is monster_crystal {
+    if (target == undefined){
+        return false;
+    }
     return (target as monster_crystal).checkSpawn !== undefined;
 }

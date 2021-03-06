@@ -8,6 +8,7 @@ import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monste
 import { monsterType, isCrystal } from 'src/app/modules/monsters/monster_type';
 import { utils } from 'src/app/modules/utils';
 import { monster_data, monsterParam } from './monster_spawn';
+import { mapItemControl } from '../mapItems/mapItemControl';
 
 
 type players = character_swordsman;
@@ -20,28 +21,25 @@ export class monsterControl {
     gridArray: integer[][];
     monsterLimit: number = 10;
     scoreGained: number = 0;
+    healthGained: number = 0;
     roundPlaying: boolean = false;
+    roundCountDown: boolean = true;
     lastRoundTick!: number;
     scorePerRound: number = 1000;
-    currRound: number = 0;
+    currRound: number = 1;
     monsterData: monster_data = new monster_data();
     monsterParam!: Array<monsterParam>;
+    itemControl: mapItemControl;
 
 
-    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
+    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][], aItemControl: mapItemControl) {
         this.gameScene = aScene;
         this.collision = aCollision;
         this.gridArray = aGridArray;
+        this.itemControl = aItemControl;
         monster_zombie.loadSprite(this.gameScene);
         monster_crystal.loadSprite(this.gameScene);
-
-        // let monster: Array<monsterParam> = this.monsterData.getArray('round1');
-        // console.log ('monster: ' + JSON.stringify(monster));
-        // monster[0].count --;
-
-        // let monster2: Array<monsterParam> = this.monsterData.getArray('round1');
-        // console.log ('monster2: ' + JSON.stringify(monster2));
-
+        monster_skeleton.loadSprite(this.gameScene);
     }
 
     private monsterSpawn(pos_x: number, pos_y: number) {
@@ -54,11 +52,14 @@ export class monsterControl {
             }
         }
 
-        if (newmonster.count <= 0) {
-            if (this.monsterParam[this.monsterParam.length - 1].count > 0) {
-                newmonster = this.monsterParam[this.monsterParam.length - 1];
-            } else {
-                return;
+        if (newmonster == undefined || newmonster.count <= 0) {
+            for (let i = this.monsterParam.length - 1; i > -1; i--) {
+                if (this.monsterParam[i].count > 0) {
+                    newmonster = this.monsterParam[i];
+                    break;
+                } else if (i == 0){
+                    return;
+                }
             }
         }
         newmonster.count--;
@@ -98,7 +99,7 @@ export class monsterControl {
         this.monsterArray.push(new_crystal);
     }
 
-    public update(aPlayerClass: character_swordsman) {
+    public update(aPlayerClass: character_swordsman, aUpgradeEnd: boolean) {
         if (this.roundPlaying) {
             for (let i = 0; i < this.monsterArray.length; i++) {
                 let curr_monster = this.monsterArray[i];
@@ -114,10 +115,11 @@ export class monsterControl {
                         curr_monster.canSpawn = false;
                     }
                     if (curr_monster.canHeal) {
-                        for (let i = 0; i < this.monsterArray.length; i++) { 
+                        for (let i = 0; i < this.monsterArray.length; i++) {
                             let curr_healing_monster = this.monsterArray[i];
-                            if (!isCrystal(curr_healing_monster)){
-                                curr_healing_monster.isHealed(30);
+                            if (!isCrystal(curr_healing_monster)) {
+                                let heal = 10 + 1 * this.currRound;
+                                curr_healing_monster.isHealed(heal);
                             }
                         }
                         curr_monster.canHeal = false;
@@ -126,18 +128,34 @@ export class monsterControl {
                 //life check
                 if (curr_monster.healthPoint <= 0) {
                     curr_monster.destroy();
-                    this.monsterArray.splice(this.monsterArray.indexOf(curr_monster), 1);
+                    this.monsterArray.splice(i, 1);
+                    i--;
                     if (isCrystal(curr_monster)) {
                         this.scoreGained += 500;
                     }
                     this.scoreGained += 100;
+                    // this.healthGained += 30;
+                    let itemRoll = Math.random();
+                    if (curr_monster.itemDropChance >= itemRoll) {
+                        let pos = curr_monster.sprite.getCenter();
+                        this.itemControl.itemSpawn(pos.x, pos.y);
+                    }
                 }
             }
+
+            if (this.monsterArray.length <= 2) {
+                this.isOnlyCrystal();
+            }
+
             if (this.monsterArray.length <= 0) {
                 this.endRound();
             }
         } else {
-            if (this.lastRoundTick == undefined || utils.tickElapsed(this.lastRoundTick) >= 5000) {
+            if (!this.roundCountDown && aUpgradeEnd) {
+                this.lastRoundTick = utils.getTick();
+                this.roundCountDown = true;
+            }
+            if (this.roundCountDown && (this.lastRoundTick == undefined || utils.tickElapsed(this.lastRoundTick) >= 5000)) {
                 this.startRound();
             }
         }
@@ -146,21 +164,47 @@ export class monsterControl {
 
     private startRound() {
         this.roundPlaying = true;
+        this.roundCountDown = false;
         let pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
         this.addMonsterCrystal(14.5, pos_y);
         pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
         this.addMonsterCrystal(785.5, pos_y);
-        this.currRound++;
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
     }
-    
+
 
     private endRound() {
         this.roundPlaying = false;
-        this.lastRoundTick = utils.getTick();
         this.scoreGained += this.scorePerRound;
         this.scorePerRound += 250;
+        this.currRound++;
         this.monsterLimit += 2;
+    }
+
+    private isOnlyCrystal() {
+        if (this.monsterArray.length == 1) {
+            if (isCrystal(this.monsterArray[0])) {
+                for (let i = 0; i < this.monsterParam.length; i++) {
+                    if (this.monsterParam[i].count > 0) {
+                        return;
+                    }
+                }
+                this.monsterArray[0].destroy();
+                this.monsterArray.splice(0, 1);
+            }
+        } else {
+            if (isCrystal(this.monsterArray[0]) && isCrystal(this.monsterArray[1])) {
+                for (let i = 0; i < this.monsterParam.length; i++) {
+                    if (this.monsterParam[i].count > 0) {
+                        return;
+                    }
+                }
+                this.monsterArray[0].destroy();
+                this.monsterArray[1].destroy();
+                this.monsterArray.splice(0, 2);
+            }
+        }
+
     }
 
 
@@ -170,7 +214,18 @@ export class monsterControl {
         return score;
     }
 
+    public getHealth() {
+        let health = this.healthGained;
+        this.healthGained = 0;
+        return health;
+    }
+
     public getRound() {
         return this.currRound;
     }
+
+    public getRoundEnd() {
+        return !this.roundPlaying;
+    }
+
 }

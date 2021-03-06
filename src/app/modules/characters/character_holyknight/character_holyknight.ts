@@ -22,15 +22,38 @@ export class character_swordsman {
     private monsterControl!: monsterControl;
 
     //character attributes
-    private healthPoint: number = 100;
+    private healthPoint: number = 150;
+    private maxHealthPoint: number = 150;
     private energyPoint: number = 0;
+    private maxEnergyPoint: number = 100;
+    private energyGenRate: number = 0.1;
     private isInvulnerable: boolean = false;
     private isUnstoppable: boolean = false;
     private isDead: boolean = false;
 
+    //attack levels
+    private slashLevel: number = 1;
+    private chargeLevel: number = 1;
+    private shieldLevel: number = 1;
+    private blastLevel: number = 1;
+
+    //attack attributes
+    private slashCoolDown: number = 1000;
+    private slashEmpowerRate: number = 10000;
+    //
+
+    private chargeEnergy: number = 25;
+    //
+
+    private shieldEnergy: number = 50;
+
+    //
+    private blastDamage: number = 15;
+    private blastEnergy: number = 80;
+
     //tick
     private lastSlashTick!: number;
-    private slashCounter: integer = 0;
+    private slashCounter: integer = 1;
     //
     private lastChargeTick!: number;
     //
@@ -40,6 +63,8 @@ export class character_swordsman {
     private lastBlastTick!: number;
     private blastChargingTime!: number;
     private blastEnergyTick!: number
+    private blastCreateTick!: number;
+    private blastCount: number = 0;
     //
     private lastJumpTick!: number;
     private initHeight!: number;
@@ -69,6 +94,8 @@ export class character_swordsman {
     private shieldEffect!: character_sword_shield;
     private chargeEffect!: character_sword_charge;
     private blastEffect!: character_sword_blast;
+    private blastEffectArray: Array<character_sword_blast> = [];
+
 
     //character 
     constructor(aScene: Phaser.Scene, aCollision: collision, aInterface: game_interface) {
@@ -110,6 +137,7 @@ export class character_swordsman {
 
     public addMonsterControl(aMonsterControl: monsterControl) {
         this.monsterControl = aMonsterControl;
+
     }
 
     //General Methods
@@ -120,9 +148,12 @@ export class character_swordsman {
         this.collision.addPlayer(this);
         this.gameScene.sound.add('character_damage');
         this.gameScene.sound.add('character_dead');
+        this.interface.changeMaxHealth(this.maxHealthPoint);
+        this.interface.changeMaxEnergy(this.maxEnergyPoint);
+        this.interface.addAbilityEnergy(this.chargeEnergy, this.shieldEnergy, this.blastEnergy);
     }
 
-    public update() {
+    public update(aHealth: number) {
         if (!this.isDead) {
             this.slashMachine();
             this.chargeMachine();
@@ -130,6 +161,9 @@ export class character_swordsman {
             this.spriteMachine();
             this.blastMachine();
             this.dogeMachine();
+        }
+        if (aHealth > 0) {
+            this.isHealed(aHealth);
         }
     }
 
@@ -139,7 +173,9 @@ export class character_swordsman {
             this.interface.changeHealthBar(this.healthPoint);
             this.sprite.setTint(0xF86161);
             setTimeout(() => {
-                this.sprite.clearTint();
+                if (this.sprite.tintTopLeft == 0xF86161) {
+                    this.sprite.clearTint();
+                }
             }, 200)
             if (this.healthPoint <= 0) {
                 this.gameScene.sound.play('character_dead');
@@ -155,6 +191,20 @@ export class character_swordsman {
         }
     }
 
+    public isHealed(aHeal: number) {
+        this.healthPoint += aHeal;
+        if (this.healthPoint > this.maxHealthPoint) {
+            this.healthPoint = this.maxHealthPoint;
+        }
+        this.interface.changeHealthBar(this.healthPoint);
+        this.sprite.setTint(0xBCF5A9);
+        setTimeout(() => {
+            if (this.sprite.tintTopLeft == 0xBCF5A9) {
+                this.sprite.clearTint();
+            }
+        }, 200)
+    }
+
     public isStunned(aTime: number) {
         if (!this.isUnstoppable && !this.isDead) {
             this.sprite.setAccelerationX(0);
@@ -163,19 +213,52 @@ export class character_swordsman {
             this.stunnedDuration = aTime;
             this.spriteStateValue = "stunned"
             this.chargeStateValue = "idle";
+            this.blastStateValue = "playing";
         }
     }
 
-    public isHealed(aHeal: number){
-        this.healthPoint += aHeal;
-        if(this.healthPoint > 100){
-            this.healthPoint = 100;
-        }
+    public incMaxHealth(aHealthPoint: number) {
+        this.maxHealthPoint += aHealthPoint;
+        this.interface.changeMaxHealth(this.maxHealthPoint);
         this.interface.changeHealthBar(this.healthPoint);
-        this.sprite.setTint(0xBCF5A9);
-        setTimeout(() => {
-            this.sprite.clearTint();
-        }, 200)
+        console.log(this.maxHealthPoint);
+    }
+
+    public decMaxHealth(aHealthPoint: number) {
+        this.maxHealthPoint -= aHealthPoint;
+        this.interface.changeMaxHealth(this.maxHealthPoint);
+        this.interface.changeHealthBar(this.healthPoint);
+    }
+
+    public incEnergy(aEnergyPoint: number) {
+        this.energyPoint += aEnergyPoint;
+        if (this.energyPoint >= this.maxEnergyPoint) {
+            this.energyPoint = this.maxEnergyPoint;
+        }
+
+        this.interface.changeEnergyBar(this.energyPoint);
+    }
+
+    public decEnergy(aEnergyPoint: number) {
+        if (this.energyPoint >= aEnergyPoint) {
+            this.energyPoint -= aEnergyPoint;
+        } else {
+            this.energyPoint = 0;
+        }
+        this.interface.changeEnergyBar(this.energyPoint);
+    }
+
+    public incMaxEnergy(aEnergyPoint: number) {
+        this.maxEnergyPoint += aEnergyPoint;
+        console.log(this.maxEnergyPoint);
+        this.interface.changeMaxEnergy(this.maxEnergyPoint);
+        this.interface.changeEnergyBar(this.energyPoint);
+    }
+
+    public decMaxEnergy(aEnergyPoint: number) {
+        this.maxEnergyPoint -= aEnergyPoint;
+        this.interface.changeMaxEnergy(this.maxEnergyPoint);
+        this.interface.changeEnergyBar(this.energyPoint);
     }
 
     public checkDeath() {
@@ -248,8 +331,9 @@ export class character_swordsman {
                     this.spriteStateValue = "doubleJumping";
                 } else if (this.isJumpEnd()) {
                     this.spriteStateValue = "idle"
-                } else if (this.checkShield()) {
-                    this.spriteStateValue = "attacking_spin_1";
+                } else if (this.checkDoge()) {
+                    this.spriteStateValue = "dodging";
+                    this.dogeStateValue = "start";
                 }
                 break;
             }
@@ -273,7 +357,7 @@ export class character_swordsman {
                 break;
             }
             case "attacking": {
-                if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle" && this.blastStateValue == "idle") {
+                if (this.slashStateValue == "idle" && (this.shieldStateValue == "idle" || this.shieldStateValue == "playing") && this.chargeStateValue == "idle" && (this.blastStateValue == "playing" || this.blastStateValue == "idle")) {
                     this.spriteStateValue = "idle";
                 }
                 break;
@@ -323,6 +407,7 @@ export class character_swordsman {
                 this.updateSlashEffect();
                 if (this.checkSlashEnd()) {
                     this.slashStateValue = "idle";
+                    console.log("hit")
                 }
                 break;
             }
@@ -348,7 +433,13 @@ export class character_swordsman {
             case "playing": {
                 this.doCharge();
                 this.updateChargeEffect();
+                if (this.chargeLevel >= 6 && this.checkChargeJump()) {
+                    this.doChargeJump();
+                }
                 if (this.checkChargeEnd()) {
+                    if (this.chargeLevel >= 3) {
+                        this.createChargeWave();
+                    }
                     this.chargeStateValue = "idle";
                 }
                 break;
@@ -376,6 +467,11 @@ export class character_swordsman {
             }
             case "effect_animation": {
                 this.updateShieldEffect();
+                if (this.shieldEffect.getCanAttack()) {
+                    if (this.checkSlash()) {
+                        this.slashStateValue = "start";
+                    }
+                }
                 if (this.checkShieldEnd()) {
                     this.shieldStateValue = "idle";
                 }
@@ -394,18 +490,46 @@ export class character_swordsman {
                 break;
             }
             case "start": {
-                if (this.doBlast()) {
+                if (this.blastCreateTick == undefined || utils.tickElapsed(this.blastCreateTick) >= 300) {
                     this.createBlastEffect();
-                    this.blastStateValue = "playing";
+                    this.blastCreateTick = utils.getTick();
+                    this.blastCount++;
+                }
+                if (this.blastCount > this.blastEffect.getBlastCount()) {
                     this.spriteStateValue = "idle";
-                };
+                    this.blastStateValue = "playing";
+                }
+                this.checkBlastHeal();
+                if (this.cursors.left.isDown) {
+                    if (!this.sprite.flipX) {
+                        this.sprite.setVelocityX(-50);
+                    } else {
+                        this.sprite.setVelocityX(-100);
+                    }
+                    this.sprite.anims.play("character_holyknight_move", true);
+                } else if (this.cursors.right.isDown) {
+                    if (this.sprite.flipX) {
+                        this.sprite.setVelocityX(50);
+                    } else {
+                        this.sprite.setVelocityX(100);
+                    }
+                    this.sprite.anims.play("character_holyknight_move", true);
+                } else {
+                    this.sprite.setVelocityX(0);
+                    this.sprite.anims.play("character_holyknight_idle", true);
+                }
                 break;
             }
             case "playing": {
+                this.checkBlastHeal();
                 if (this.checkBlastEnd()) {
-                    // this.spriteStateValue = "idle";
+                    this.blastCount = 0;
                     this.blastStateValue = "idle";
                 }
+                break;
+            }
+            default: {
+                this.blastStateValue = "idle"
                 break;
             }
         }
@@ -433,15 +557,23 @@ export class character_swordsman {
         });
 
         this.gameScene.anims.create({
-            key: "charge_effect", frames: this.gameScene.anims.generateFrameNumbers("charge_effect", { start: 0, end: 4 }), frameRate: 20,
-        });
-
-        this.gameScene.anims.create({
             key: "slash_effect", frames: this.gameScene.anims.generateFrameNumbers("slash_effect", { start: 0, end: 5 }), frameRate: 20,
         });
 
         this.gameScene.anims.create({
-            key: "shield_effect", frames: this.gameScene.anims.generateFrameNumbers("shield_effect", { start: 0, end: 4 }), frameRate: 10,
+            key: "charge_effect", frames: this.gameScene.anims.generateFrameNumbers("charge_effect", { start: 0, end: 4 }), frameRate: 20,
+        });
+
+        this.gameScene.anims.create({
+            key: "charge_effect_1", frames: this.gameScene.anims.generateFrameNumbers("charge_effect", { start: 6, end: 7 }), frameRate: 5, repeat: -1
+        });
+
+        this.gameScene.anims.create({
+            key: "shield_effect", frames: this.gameScene.anims.generateFrameNumbers("shield_effect", { start: 0, end: 8 }), frameRate: 10,
+        });
+
+        this.gameScene.anims.create({
+            key: "shield_effect_1", frames: this.gameScene.anims.generateFrameNumbers("shield_effect", { start: 9, end: 11 }), frameRate: 10,
         });
 
         this.gameScene.anims.create({
@@ -494,7 +626,7 @@ export class character_swordsman {
 
     private doJump() {
         this.initHeight = this.sprite.getCenter().y;
-        this.sprite.setVelocityY(-200);
+        this.sprite.setVelocityY(-230);
         this.lastJumpTick = utils.getTick();
     }
 
@@ -518,7 +650,7 @@ export class character_swordsman {
     }
 
     private checkDoge() {
-        if (this.sprite.body.touching.down && this.cursors.down.isDown && (utils.tickElapsed(this.lastDogeTick) >= 1000 || this.lastDogeTick == undefined)) {
+        if (this.cursors.down.isDown && (utils.tickElapsed(this.lastDogeTick) >= 1000 || this.lastDogeTick == undefined)) {
             this.lastDogeTick = utils.getTick();
             return true;
         }
@@ -528,10 +660,14 @@ export class character_swordsman {
     private doDoge() {
         if (!this.sprite.flipX) {
             this.sprite.setVelocityX(125);
+            this.sprite.body.velocity.y *= 1.2;
+
         } else {
             this.sprite.setVelocityX(-125);
+            this.sprite.body.velocity.y *= 1.2;
         }
         this.isInvulnerable = true;
+        this.isUnstoppable = true;
         this.sprite.setPushable(false);
         this.sprite.anims.play("character_holyknight_doge", true);
     }
@@ -539,33 +675,19 @@ export class character_swordsman {
     private checkDogeEnd() {
         if (utils.tickElapsed(this.lastDogeTick) >= 500) {
             this.isInvulnerable = false;
+            this.isUnstoppable = false;
             this.sprite.setPushable(true);
             return true;
         }
         return false;
     }
 
-    private decEnergy(aNumber: number) {
-        if (this.energyPoint >= aNumber) {
-            this.energyPoint -= aNumber;
-        } else {
-            this.energyPoint = 0;
-        }
-        this.interface.changeEnergyBar(this.energyPoint);
-    }
 
-    private incEnergy(aNumber: number) {
-        this.energyPoint += aNumber;
-        if (this.energyPoint >= 100) {
-            this.energyPoint = 100;
-        }
-        this.interface.changeEnergyBar(this.energyPoint);
-    }
 
     //Character Specific Method
     //basic Attack
     private checkSlash() {
-        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= 600)) && this.keyA.isDown) {
+        if (((this.lastSlashTick == undefined) || (utils.tickElapsed(this.lastSlashTick) >= this.slashCoolDown)) && this.keyA.isDown) {
             this.lastSlashTick = utils.getTick();
             return true;
         }
@@ -582,7 +704,7 @@ export class character_swordsman {
     }
 
     private createSlashEffect() {
-        this.slashEffect = new character_sword_slash(this.gameScene, this.collision, this.monsterControl);
+        this.slashEffect = new character_sword_slash(this.gameScene, this.collision, this.monsterControl, this.slashLevel);
         let pos = this.sprite.getCenter();
         if (!this.sprite.flipX) {
             pos.x += 15;
@@ -595,8 +717,13 @@ export class character_swordsman {
             this.slashEffect.sprite.flipX = true;
         }
 
+        if (this.slashCounter % this.slashEmpowerRate == 0) {
+            this.slashEffect.empowerHit();
+        }
         this.slashCounter++;
         this.slashEffect.playAnims();
+        this.slashCoolDown = this.slashEffect.getCoolDown();
+        this.slashEmpowerRate = this.slashEffect.getEmpowerRate();
     }
 
     private updateSlashEffect() {
@@ -619,7 +746,7 @@ export class character_swordsman {
 
     //ability 1
     private checkCharge() {
-        if (this.sprite.body.touching.down && ((this.lastChargeTick == undefined) || (utils.tickElapsed(this.lastChargeTick) >= 800)) && this.keyS.isDown && this.energyPoint >= 25) {
+        if (this.sprite.body.touching.down && ((this.lastChargeTick == undefined) || (utils.tickElapsed(this.lastChargeTick) >= 800)) && this.keyS.isDown && this.energyPoint >= this.chargeEnergy) {
             this.lastChargeTick = utils.getTick();
             this.isUnstoppable = true;
             this.decEnergy(25);
@@ -630,6 +757,7 @@ export class character_swordsman {
 
     private doCharge() {
         if ((utils.tickElapsed(this.lastChargeTick) >= 410)) {
+            this.sprite.setPushable(false);
             if (!this.sprite.flipX) {
                 this.sprite.setVelocityX(360);
             } else {
@@ -639,7 +767,7 @@ export class character_swordsman {
     }
 
     private createChargeEffect() {
-        this.chargeEffect = new character_sword_charge(this.gameScene, this.collision, this.monsterControl);
+        this.chargeEffect = new character_sword_charge(this.gameScene, this.collision, this.monsterControl, this.chargeLevel);
         let pos;
         if (!this.sprite.flipX) {
             pos = this.sprite.getRightCenter();
@@ -662,19 +790,47 @@ export class character_swordsman {
         }
     }
 
+    private checkChargeJump() {
+        if (this.sprite.body.touching.down && this.cursors.up.isDown && this.chargeEffect.useChargeJump() >= 1) {
+            this.lastChargeTick = utils.getTick();
+            return true;
+        }
+        return false;
+    }
+
+    private doChargeJump() {
+        this.sprite.setVelocity(0, -250)
+        if (utils.tickElapsed(this.lastChargeTick) >= 250) {
+            return true;
+        }
+        return false;
+    }
+
     private checkChargeEnd() {
-        if ((utils.tickElapsed(this.lastChargeTick) >= 1250)) {
-            this.chargeEffect.destroy();
+        if ((utils.tickElapsed(this.lastChargeTick) >= this.chargeEffect.getDuration() - 200)) {
+            if (!this.chargeEffect.isDestroyed() && this.chargeLevel < 3) {
+                this.chargeEffect.destroy();
+            }
+        }
+        if ((utils.tickElapsed(this.lastChargeTick) >= this.chargeEffect.getDuration())) {
+            this.sprite.setPushable(true);
             this.isUnstoppable = false;
             return true;
         }
         return false;
     }
 
+    private createChargeWave() {
+        this.chargeEffect.chargeWave();
+    }
+
+
+
     //ability 2
     private checkShield() {
-        if ((this.lastShieldTick == undefined || (utils.tickElapsed(this.lastShieldTick) >= 3300)) && this.keyD.isDown && this.energyPoint >= 50) {
+        if ((this.lastShieldTick == undefined || (utils.tickElapsed(this.lastShieldTick) >= 1000)) && this.keyD.isDown && this.energyPoint >= this.shieldEnergy) {
             this.lastShieldTick = utils.getTick();
+            this.decEnergy(50);
             return true;
         }
         return false;
@@ -694,7 +850,7 @@ export class character_swordsman {
     }
 
     private createShieldEffect() {
-        this.shieldEffect = new character_sword_shield(this.gameScene, this.collision, this.monsterControl);
+        this.shieldEffect = new character_sword_shield(this.gameScene, this.collision, this.monsterControl, this.shieldLevel);
         let pos = this.sprite.getCenter();
         this.shieldEffect.create(pos.x, pos.y);
         this.shieldEnergyTick = utils.getTick();
@@ -704,10 +860,10 @@ export class character_swordsman {
     private updateShieldEffect() {
         let pos = this.sprite.getCenter();
         this.shieldEffect.sprite.setPosition(pos.x, pos.y);
-        if (utils.tickElapsed(this.shieldEnergyTick) >= 250) {
-            this.shieldEnergyTick = utils.getTick();
-            this.decEnergy(3.25);
-        }
+        // if (utils.tickElapsed(this.shieldEnergyTick) >= 250) {
+        //     this.shieldEnergyTick = utils.getTick();
+        //     this.decEnergy(3.25);
+        // }
         if (this.cursors.left.isDown) {
             this.sprite.flipX = true;
             this.sprite.setVelocityX(-50);
@@ -724,10 +880,12 @@ export class character_swordsman {
 
 
     private checkShieldEnd() {
-        if ((this.energyPoint <= 0) || ((utils.tickElapsed(this.lastShieldTick) >= 1500) && this.keyD.isDown) || (utils.tickElapsed(this.lastShieldTick) >= 5000)) {
+        if (((utils.tickElapsed(this.lastShieldTick) >= 1200) && this.keyD.isDown) || (utils.tickElapsed(this.lastShieldTick) >= this.shieldEffect.getShieldDuration())) {
             this.sprite.setPushable(true);
             this.shieldEffect.destroy();
             this.isInvulnerable = false;
+            this.lastShieldTick = utils.getTick();
+
             return true;
         }
         return false;
@@ -735,9 +893,10 @@ export class character_swordsman {
 
     //ultimate ability
     private checkBlast() {
-        if (this.sprite.body.touching.down && (this.lastBlastTick == undefined || (utils.tickElapsed(this.lastBlastTick) >= 1000)) && this.keySPACE.isDown && this.energyPoint >= 75) {
+        if (this.sprite.body.touching.down && (this.lastBlastTick == undefined || (utils.tickElapsed(this.lastBlastTick) >= 1000)) && this.keySPACE.isDown && this.energyPoint >= this.blastEnergy) {
             this.lastBlastTick = utils.getTick();
             this.blastEnergyTick = utils.getTick();
+            this.decEnergy(80);
             return true;
         }
         return false;
@@ -766,31 +925,67 @@ export class character_swordsman {
     }
 
     private createBlastEffect() {
-        this.blastEffect = new character_sword_blast(this.gameScene, this.collision, this.monsterControl);
-        let pos = this.sprite.getBottomCenter();
-        this.blastEffect.create(pos.x, pos.y - 11, this.blastChargingTime);
+        this.blastEffect = new character_sword_blast(this.gameScene, this.collision, this.monsterControl, this.blastLevel);
+        let pos = this.sprite.getCenter();
+        let randomY = Phaser.Math.FloatBetween(-10, 10)
+        this.blastEffect.create(pos.x, pos.y + randomY, this.blastChargingTime);
 
         if (!this.sprite.flipX) {
-            this.blastEffect.sprite.setVelocityX(this.blastChargingTime / 2 + 50);
+            this.blastEffect.sprite.setVelocityX(300);
         } else {
             this.blastEffect.sprite.flipX = true;
-            this.blastEffect.sprite.setVelocityX(-1 * this.blastChargingTime / 2 - 50);
+            this.blastEffect.sprite.setVelocityX(-300);
         }
-
-
         this.blastEffect.playAnims();
         this.sprite.anims.play("character_holyknight_attack", true);
+
+        this.blastEffectArray.push(this.blastEffect);
+
+    }
+
+    private checkBlastHeal() {
+        for (let i = 0; i < this.blastEffectArray.length; i++) {
+            let heal = this.blastEffectArray[i].getHealthGained();
+            if (heal > 0){
+                this.isHealed(heal);
+            }
+        }
     }
 
     private checkBlastEnd() {
-        if ((utils.tickElapsed(this.lastBlastTick) >= 2000)) {
-            this.blastEffect.destroy();
+        if ((utils.tickElapsed(this.lastBlastTick) >= 5000)) {
+            // for (let i = 0; i < 10; i++) {
+            //     this.blastEffectArray[i].destroy();
+            // }
             return true;
         }
         return false;
     }
 
-    
+    public attackLevelUp(aAttack: number) {
+        if (aAttack == 0) {
+            this.slashLevel++;
+            if (this.slashLevel > 15) {
+                this.slashLevel = 15;
+            }
+        } else if (aAttack == 1) {
+            this.chargeLevel++;
+            if (this.chargeLevel > 15) {
+                this.chargeLevel = 15;
+            }
+        } else if (aAttack == 2) {
+            this.shieldLevel++
+            if (this.shieldLevel > 15) {
+                this.shieldLevel = 15;
+            }
+        } else {
+            this.blastLevel++;
+            if (this.blastLevel > 15) {
+                this.blastLevel = 15;
+            }
+        }
+        this.interface.changeAbilityLevel(this.slashLevel, this.chargeLevel, this.shieldLevel, this.blastLevel);
+    }
 
 
 

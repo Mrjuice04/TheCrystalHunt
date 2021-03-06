@@ -1,4 +1,4 @@
 import { from } from "rxjs";
-import { healCrystal } from './healCrystal';
+import { healCrystal, energyCrystal } from './healCrystal';
 
-export type itemType = healCrystal;
+export type itemType = healCrystal | energyCrystal;
