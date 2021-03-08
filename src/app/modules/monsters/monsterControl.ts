@@ -9,6 +9,7 @@ import { monsterType, isCrystal } from 'src/app/modules/monsters/monster_type';
 import { utils } from 'src/app/modules/utils';
 import { monster_data, monsterParam } from './monster_spawn';
 import { mapItemControl } from '../mapItems/mapItemControl';
+import { background } from 'src/app/modules/background';
 
 
 type players = character_swordsman;
@@ -19,7 +20,6 @@ export class monsterControl {
     monsterArray: Array<monsterType> = [];
     anims1Created: boolean = false;
     gridArray: integer[][];
-    monsterLimit: number = 10;
     scoreGained: number = 0;
     healthGained: number = 0;
     roundPlaying: boolean = false;
@@ -30,13 +30,15 @@ export class monsterControl {
     monsterData: monster_data = new monster_data();
     monsterParam!: Array<monsterParam>;
     itemControl: mapItemControl;
+    background: background;
 
 
-    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][], aItemControl: mapItemControl) {
+    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][], aItemControl: mapItemControl, aBackground: background) {
         this.gameScene = aScene;
         this.collision = aCollision;
         this.gridArray = aGridArray;
         this.itemControl = aItemControl;
+        this.background = aBackground;
         monster_zombie.loadSprite(this.gameScene);
         monster_crystal.loadSprite(this.gameScene);
         monster_skeleton.loadSprite(this.gameScene);
@@ -57,9 +59,10 @@ export class monsterControl {
                 if (this.monsterParam[i].count > 0) {
                     newmonster = this.monsterParam[i];
                     break;
-                } else if (i == 0){
-                    return;
                 }
+            }
+            if (newmonster == undefined || newmonster.count <= 0) {
+                return;
             }
         }
         newmonster.count--;
@@ -108,7 +111,7 @@ export class monsterControl {
                 let aPlayerPosition = aPlayerClass.sprite.getCenter();
                 curr_monster.getPostision(aPlayerPosition);
                 //monster spawn
-                if (this.monsterArray.length < this.monsterLimit && isCrystal(curr_monster)) {
+                if (isCrystal(curr_monster)) {
                     if (curr_monster.canSpawn) {
                         let pos = curr_monster.sprite.getCenter();
                         this.monsterSpawn(pos.x, pos.y);
@@ -118,7 +121,7 @@ export class monsterControl {
                         for (let i = 0; i < this.monsterArray.length; i++) {
                             let curr_healing_monster = this.monsterArray[i];
                             if (!isCrystal(curr_healing_monster)) {
-                                let heal = 10 + 1 * this.currRound;
+                                let heal = 15 + 1 * this.currRound;
                                 curr_healing_monster.isHealed(heal);
                             }
                         }
@@ -138,7 +141,7 @@ export class monsterControl {
                     let itemRoll = Math.random();
                     if (curr_monster.itemDropChance >= itemRoll) {
                         let pos = curr_monster.sprite.getCenter();
-                        this.itemControl.itemSpawn(pos.x, pos.y);
+                        this.itemControl.addItem(pos.x, pos.y);
                     }
                 }
             }
@@ -154,6 +157,11 @@ export class monsterControl {
             if (!this.roundCountDown && aUpgradeEnd) {
                 this.lastRoundTick = utils.getTick();
                 this.roundCountDown = true;
+                if ((this.currRound - 1) % 10 == 0){
+                    setTimeout(() => {
+                        this.background.createGrid();
+                    }, 3000);
+                }
             }
             if (this.roundCountDown && (this.lastRoundTick == undefined || utils.tickElapsed(this.lastRoundTick) >= 5000)) {
                 this.startRound();
@@ -165,10 +173,33 @@ export class monsterControl {
     private startRound() {
         this.roundPlaying = true;
         this.roundCountDown = false;
-        let pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
-        this.addMonsterCrystal(14.5, pos_y);
-        pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
-        this.addMonsterCrystal(785.5, pos_y);
+        let pos_y;
+        // this.addMonsterCrystal(25, pos_y);
+        // pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
+        // this.addMonsterCrystal(775, pos_y);
+        // console.log (this.gridArray)
+        let pos_x;
+        let crystalCount = Math.floor(this.currRound / 10) + 2;
+        for (let i = 0; i < crystalCount; i++) {
+            for (; ;) {
+                pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
+                pos_x = 25 + (Math.floor(Phaser.Math.FloatBetween(0, 30)) * 25);
+                let curr_row = (Math.floor((pos_y + 20) / 25)) + 1;
+                console.log(curr_row)
+
+                let curr_col = (Math.floor((pos_x) / 25)) - 1;
+                let ground_value_1 = this.gridArray[curr_row][curr_col];
+                let ground_value_2 = this.gridArray[curr_row][curr_col + 1];
+                console.log("value1: " + ground_value_1 + " & value2: " + ground_value_2)
+
+                if ((ground_value_1 == 1) && (ground_value_2 == 1)) {
+                    console.log(curr_col)
+                    this.addMonsterCrystal(pos_x, pos_y);
+                    break;
+                }
+            }
+        }
+
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
     }
 
@@ -177,8 +208,11 @@ export class monsterControl {
         this.roundPlaying = false;
         this.scoreGained += this.scorePerRound;
         this.scorePerRound += 250;
+        if (this.currRound % 10 == 0){
+            this.background.destroyBrick();
+            
+        }
         this.currRound++;
-        this.monsterLimit += 2;
     }
 
     private isOnlyCrystal() {

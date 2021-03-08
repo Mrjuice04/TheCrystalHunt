@@ -9,6 +9,8 @@ import { HomeComponent } from './pages/home/home.component';
 import { GamePageComponent } from './pages/game-page/game-page.component';
 import { AboutPageComponent } from './pages/about-page/about-page.component';
 import { InstructionPageComponent } from './pages/instruction-page/instruction-page.component';
+import { CreditPageComponent } from './pages/credit-page/credit-page.component';
+
 
 @NgModule({
   declarations: [
@@ -18,6 +20,7 @@ import { InstructionPageComponent } from './pages/instruction-page/instruction-p
     GamePageComponent,
     AboutPageComponent,
     InstructionPageComponent,
+    CreditPageComponent,
   ],
   imports: [
     BrowserModule,

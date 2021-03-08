@@ -12,7 +12,7 @@ export class monster_crystal {
 
     destoryed: boolean = false;
 
-    public itemDropChance: number = 0;
+    public itemDropChance: number = 1;
 
     
     spawnTime: number = 15000;

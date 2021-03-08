@@ -94,7 +94,7 @@ class MainScene extends Phaser.Scene {
     this.interface = new game_interface(this);
     this.player = new character_swordsman(this, this.collision, this.interface);
     this.mapItemControl = new mapItemControl(this, this.collision);
-    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray(), this.mapItemControl);
+    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray(), this.mapItemControl, this.background);
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
     this.upgradeControl = new upgradeControl(this, this.collision);

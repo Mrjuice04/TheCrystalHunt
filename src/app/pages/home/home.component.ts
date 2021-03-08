@@ -25,4 +25,8 @@ export class HomeComponent implements OnInit {
   onInstructionClicked(): void {
     this.router.navigate(['instruction']);
   }
+
+  onCreditClicked(): void {
+    this.router.navigate(['credit']);
+  }
 }

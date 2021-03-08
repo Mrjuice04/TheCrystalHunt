@@ -53,7 +53,7 @@ export class upgradeControl {
 
     private levelUpAbility1(aCount: number) {
         let newUpgrade = new levelUp(this.gameScene);
-        let pos_x = 150 + 100 * aCount;
+        let pos_x = 200 + 100 * aCount;
         newUpgrade.create(pos_x, 500);
         this.collision.addPlayerInteractiveItem(newUpgrade);
         this.upgradeArray.push(newUpgrade);

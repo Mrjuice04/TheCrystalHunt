@@ -34,10 +34,12 @@ export class collision {
 
 
 
-    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithDynamicBody) {
+    addBrick(aBrick: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, aInit: boolean) {
         this.gameScene.physics.add.collider(this.player.sprite, aBrick);
         this.brickArray.push(aBrick);
     }
+
+    
 
     addPlayer(aPlayer: character_swordsman) {
         this.player = aPlayer;

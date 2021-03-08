@@ -28,20 +28,15 @@ export class mapItemControl {
     public update(aRound: number) {
         if (aRound != this.currRound) {
             this.currRound = aRound;
-            this.itemParam = this.itemData.getArray('round' + this.currRound);
+            // this.itemParam = this.itemData.getArray('round' + this.currRound);
         }
-        // if (utils.tickElapsed(this.lastSpawnTick) >= 5000) {
-        //     let pos_x = Math.floor(Math.random() * 800);
-        //     this.itemSpawn(pos_x, 25);
-        //     this.lastSpawnTick = utils.getTick();
-        // }
     }
 
 
-    private addHealCrystal(pos_x: number, pos_y: number) {
+    public addItem(pos_x: number, pos_y: number) {
         let itemRoll = Math.random();
         let newItem: itemType = new healCrystal(this.gameScene);
-        if (itemRoll < 0.6){
+        if (itemRoll < 0.6) {
             newItem = new healCrystal(this.gameScene);
         } else {
             newItem = new energyCrystal(this.gameScene);
@@ -51,31 +46,14 @@ export class mapItemControl {
         this.itemArray.push(newItem);
     }
 
-    public itemSpawn(pos_x: number, pos_y: number) {
-        let newItem: itemParam = { name: '', appearRate: 0, count: 0 };
-        for (let i = 0; i < this.itemParam.length; i++) {
-            let spawnRoll = Math.random();
-            if (this.itemParam[i].appearRate >= spawnRoll) {
-                newItem = this.itemParam[i];
-                break;
-            }
-        }
-        
-        if (newItem.count <= 0) {
-            return;
-        } else {
-            newItem.count--;
-        }
+    // public itemSpawn(pos_x: number, pos_y: number) {
+    //     for (let i = 0; i < this.itemParam.length; i++) {
+    //         this.addHealCrystal;
+    //     }
 
-        switch (newItem.name) {
-            case "heal": {
-                this.addHealCrystal(pos_x, pos_y);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
+
+
+
+    // }
 
 }
