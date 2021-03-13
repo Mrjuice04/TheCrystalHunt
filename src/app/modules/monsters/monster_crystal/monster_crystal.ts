@@ -6,6 +6,7 @@ export class monster_crystal {
     gameScene: Phaser.Scene
     collision: collision;
     healthPoint: number = 400;
+    maxHealthPoint: number = 400;
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     lastSpawnTick!: number;
     lastHealTick!: number;
@@ -14,7 +15,7 @@ export class monster_crystal {
 
     public itemDropChance: number = 1;
 
-    
+
     spawnTime: number = 15000;
     canSpawn: boolean = false;
     healTime: number = 3000;
@@ -52,7 +53,7 @@ export class monster_crystal {
         this.healthPoint -= aDamage;
         this.sprite.setTint(0xF86161);
         setTimeout(() => {
-            if (this.sprite.tintTopLeft == 0xF86161){
+            if (this.sprite.tintTopLeft == 0xF86161) {
                 this.sprite.clearTint();
             }
         }, 200)
@@ -63,9 +64,20 @@ export class monster_crystal {
             let rand_sound = Math.floor(Math.random() * 3) + 1;
             this.gameScene.sound.play(`crystal_damaged`);
         }
+        this.spawnTime -= 1000;
+        this.healTime += 500;
     }
+
+    public getMaxHealth() {
+        return this.maxHealthPoint;
+    }
+
+    public getCurrHealth() {
+        return this.healthPoint;
+    }
+
     public isSlowed(slowPercent: number) {
-       
+
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
@@ -80,10 +92,14 @@ export class monster_crystal {
 
     }
 
-    
-    public isHealed(aHeal: number){
+    public getHeal() {
+        let heal = this.healthPoint / 20
+        return heal;
+    }
+
+    public isHealed(aHeal: number) {
         this.healthPoint += aHeal;
-        if(this.healthPoint > 400){
+        if (this.healthPoint > 400) {
             this.healthPoint = 400;
         }
         this.sprite.setTint(0xBCF5A9);
@@ -100,6 +116,7 @@ export class monster_crystal {
     public checkSpawn() {
         if (this.lastSpawnTick == undefined || utils.tickElapsed(this.lastSpawnTick) >= this.spawnTime) {
             this.canSpawn = true;
+            this.spawnTime = 15000;
             this.lastSpawnTick = utils.getTick();
         }
     }

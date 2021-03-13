@@ -2,6 +2,8 @@ import { collision } from 'src/app/modules/collision';
 import { itemType } from './itemType';
 import { healCrystal } from './healCrystal'
 import { levelUp } from './levelUp'
+import { levelUpItem } from './levelUpItem'
+
 import { utils } from '../utils';
 
 
@@ -27,7 +29,7 @@ export class upgradeControl {
             this.upgradeSpawn();
             this.upgradeEnded = false;
         }
-        if (this.upgradeSpwaned) {
+        if (this.upgradeArray.length > 0) {
             for (let i = 0; i < this.upgradeArray.length; i++) {
                 let curr_upgrade = this.upgradeArray[i];
                 if (!curr_upgrade.sprite.active) {
@@ -39,7 +41,6 @@ export class upgradeControl {
                     this.upgradeArray.splice(0, 3);
                     this.upgradeEnded = true;
                     this.upgradeSpwaned = false;
-                    console.log(this.upgradeArray);
                     break;
                 } else {
                     curr_upgrade.update();
@@ -51,19 +52,28 @@ export class upgradeControl {
     }
 
 
-    private levelUpAbility1(aCount: number) {
-        let newUpgrade = new levelUp(this.gameScene);
-        let pos_x = 200 + 100 * aCount;
-        newUpgrade.create(pos_x, 500);
-        this.collision.addPlayerInteractiveItem(newUpgrade);
+    public levelUpAbility(aPosX: number, aPosY: number, aAbility: integer) {
+        let newUpgrade = new levelUpItem(this.gameScene);
+        newUpgrade.create(aPosX, aPosY, aAbility);
+        this.collision.addUpgradeIcon(newUpgrade);
         this.upgradeArray.push(newUpgrade);
     }
 
     private upgradeSpawn() {
-        for (let i = 0; i < 3; i++) {
-            let upgradeCount = i + 1;
-            this.levelUpAbility1(upgradeCount);
+        if (this.currRound % 9 == 0) {
+            for (let i = 0; i < 4; i++) {
+                let upgradeCount = i;
+                let posX = 250 + 100 * upgradeCount;
+                this.levelUpAbility(posX, 500, i);
+            }
+        } else {
+            for (let i = 0; i < 3; i++) {
+                let upgradeCount = i;
+                let posX = 300 + 100 * upgradeCount;
+                this.levelUpAbility(posX, 500, i);
+            }
         }
+
         this.upgradeSpwaned = true;
     }
 

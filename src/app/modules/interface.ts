@@ -35,7 +35,9 @@ export class game_interface {
         this.gameScene.load.image("healthBar", "./assets/gameScene/healthBar.png");
         this.gameScene.load.image("energyBar", "./assets/gameScene/energyBar.png");
         this.gameScene.load.image("sky", "./assets/gameScene/sky.png");
-        this.gameScene.load.image("iconShade", "./assets/gameScene/iconShade.png")
+        this.gameScene.load.image("iconShade", "./assets/gameScene/iconShade.png");
+        this.gameScene.load.image("levelUpBox", "./assets/gameScene/levelUpBox.png");
+        this.gameScene.load.image("levelUpText", "./assets/gameScene/levelUp.png");
     }
 
     public create() {
@@ -135,5 +137,17 @@ export class game_interface {
         this.levelText1.setText("Lvl " + aLevel1);
         this.levelText2.setText("Lvl " + aLevel2);
         this.levelText3.setText("Lvl " + aLevel3);
+        if (aLevel0 == 9){
+            this.levelText0.setText("Lvl Max");
+        }
+        if (aLevel1 == 9){
+            this.levelText1.setText("Lvl Max");
+        }
+        if (aLevel2 == 9){
+            this.levelText2.setText("Lvl Max");
+        }
+        if (aLevel3 == 3){
+            this.levelText3.setText("Lvl Max");
+        }
     }
 }

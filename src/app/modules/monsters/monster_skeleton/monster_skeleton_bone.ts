@@ -7,8 +7,9 @@ export class monster_skeleton_bone{
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     collision: collision;
-    damage: number = 10;
-    stunTime: number = 300; //ms
+    damage: number = 20;
+    public oneTimeCollision: boolean = true;
+
 
     constructor(aScene: Phaser.Scene, aCollision: collision){
         this.gameScene = aScene;
@@ -24,7 +25,6 @@ export class monster_skeleton_bone{
 
     hitPlayer(aPlayer: character_swordsman){
         aPlayer.isDamaged(this.damage);
-        aPlayer.isStunned(this.stunTime);
         this.destroy();
     }
 

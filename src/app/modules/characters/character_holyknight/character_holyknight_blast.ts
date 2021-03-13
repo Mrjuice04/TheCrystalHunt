@@ -18,7 +18,7 @@ export class character_sword_blast {
     collisionFrequency: number = 0;
     private levelData: blastLevelData = new blastLevelData();
     private blastCount: number = 12;
-    private slowPercent: number = 0.4;
+    private slowPercent: number = 0.8;
     private level: number = 1;
     private isExplosion: boolean = false;
     private heal: number = 3;
@@ -37,7 +37,7 @@ export class character_sword_blast {
     }
 
     public create(aPosX: number, aPosY: number, aChargeTime: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "blast_effect").setScale(0.25, 0.25);
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "blast_effect").setScale(0.25, 0.25).setDepth(2);
         this.sprite.body.setAllowGravity(false);
         // this.damage *= Phaser.Math.FloorTo(aChargeTime / 100);
         this.collision.addPlayerAttack(this);
@@ -54,8 +54,9 @@ export class character_sword_blast {
     }
 
     public hitMonster(aMonster: monster_zombie) {
-        aMonster.isDamaged(this.damage);
-        aMonster.isSlowed(this.slowPercent);
+        let damage = this.damage + aMonster.getMaxHealth() * 0.07;
+        aMonster.isDamaged(damage);
+        aMonster.isSlowed(1 - this.slowPercent);
         if (this.level >= 2){
             aMonster.isStunned(100);
         }
@@ -73,7 +74,7 @@ export class character_sword_blast {
         }
         if (!this.isExplosion && this.level >= 3) {
             setTimeout(() => {
-                this.sprite = this.gameScene.physics.add.sprite(posX, pos.y, "shield_effect").setScale(0.25, 0.25);
+                this.sprite = this.gameScene.physics.add.sprite(posX, pos.y, "shield_effect").setScale(0.25, 0.25).setDepth(2);
                 this.sprite.anims.play("shield_effect_1", true);
                 this.sprite.body.setAllowGravity(false);
                 this.isExplosion = true;

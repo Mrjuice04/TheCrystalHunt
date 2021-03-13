@@ -40,7 +40,7 @@ export class GameComponent implements OnInit {
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: { y: 300 }
+          gravity: { y: 300 },
         }
       }
     };
@@ -94,10 +94,10 @@ class MainScene extends Phaser.Scene {
     this.interface = new game_interface(this);
     this.player = new character_swordsman(this, this.collision, this.interface);
     this.mapItemControl = new mapItemControl(this, this.collision);
-    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray(), this.mapItemControl, this.background);
+    this.upgradeControl = new upgradeControl(this, this.collision);
+    this.monsterControl = new monsterControl(this, this.collision, this.background.getBricksArray(), this.mapItemControl, this.background, this.upgradeControl);
     this.collision.addMonsterControl(this.monsterControl);
     this.player.addMonsterControl(this.monsterControl);
-    this.upgradeControl = new upgradeControl(this, this.collision);
     this.load.audio("bgm", "./assets/audio/bip-bop.ogg");
     this.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
 

@@ -18,12 +18,6 @@ export class slashLevelData {
         { damage: 32, cooldown: 500, empowerRate: 5 },
         { damage: 35, cooldown: 500, empowerRate: 5 },
         { damage: 37, cooldown: 500, empowerRate: 3 }, // increase rate of empower
-        { damage: 40, cooldown: 400, empowerRate: 3 },
-        { damage: 44, cooldown: 400, empowerRate: 3 },
-        { damage: 48, cooldown: 400, empowerRate: 3 }, // special empower
-        { damage: 52, cooldown: 400, empowerRate: 3 },
-        { damage: 56, cooldown: 400, empowerRate: 3 },
-        { damage: 60, cooldown: 500, empowerRate: 2 }, //
     ]
 
     constructor() {

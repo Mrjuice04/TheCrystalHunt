@@ -67,7 +67,7 @@ export class character_sword_shield {
         this.sprite.destroy();
         this.collision.deleteCollider(this);
         
-        this.sprite = this.gameScene.physics.add.sprite(pos.x, pos.y, "shield_effect").setScale(0.6, 0.6);
+        this.sprite = this.gameScene.physics.add.sprite(pos.x, pos.y, "shield_effect").setScale(0.6, 0.6).setDepth(2);
         this.sprite.body.setAllowGravity(false);
         if (this.level >= 3){
             this.isExplostionHit = true;
@@ -77,18 +77,20 @@ export class character_sword_shield {
         
         this.sprite.anims.play("shield_effect_1", true);
         if (this.level >= 9){
-            this.sprite = this.gameScene.physics.add.sprite(pos.x, pos.y, "shield_effect").setScale(1000, 1000);
+            this.sprite = this.gameScene.physics.add.sprite(pos.x, pos.y, "shield_effect").setScale(1000, 1000).setDepth(2);
             this.sprite.setVisible(false)
             this.collision.deleteCollider(this);
             this.collision.addPlayerAttack(this);
 
             setTimeout(() => {
                 this.sprite.destroy();
+                this.collision.deleteCollider(this);
             }, 100)
         }
 
         setTimeout(() => {
             this.sprite.destroy();
+            this.collision.deleteCollider(this);
         }, 300)
     }
 

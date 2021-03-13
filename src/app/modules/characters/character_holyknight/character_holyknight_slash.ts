@@ -40,7 +40,7 @@ export class character_sword_slash {
     }
 
     public create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "slash_effect");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "slash_effect").setDepth(2);
         this.gameScene.sound.add('ability_slash');
         this.sprite.body.setAllowGravity(false);
         this.collision.addPlayerAttack(this)
@@ -85,6 +85,7 @@ export class character_sword_slash {
 
     public destroy() {
         this.sprite.destroy();
+        this.collision.deleteCollider(this);
     }
 
 }

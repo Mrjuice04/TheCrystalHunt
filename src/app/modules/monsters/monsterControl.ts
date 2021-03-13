@@ -5,11 +5,14 @@ import { collision } from 'src/app/modules/collision';
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { monster_skeleton } from 'src/app/modules/monsters/monster_skeleton/monster_skeleton';
 import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monster_crystal';
+import { monster_hog } from 'src/app/modules/monsters/monster_hog/monster_hog';
+import { monster_mummy } from 'src/app/modules/monsters/monster_mummy/monster_mummy';
 import { monsterType, isCrystal } from 'src/app/modules/monsters/monster_type';
 import { utils } from 'src/app/modules/utils';
-import { monster_data, monsterParam } from './monster_spawn';
+import { monster_data, monsterParam } from './monsterSpawn';
 import { mapItemControl } from '../mapItems/mapItemControl';
 import { background } from 'src/app/modules/background';
+import { upgradeControl } from '../mapItems/upgradeControl';
 
 
 type players = character_swordsman;
@@ -31,21 +34,24 @@ export class monsterControl {
     monsterParam!: Array<monsterParam>;
     itemControl: mapItemControl;
     background: background;
+    upgradControl: upgradeControl
 
-
-    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][], aItemControl: mapItemControl, aBackground: background) {
+    constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][], aItemControl: mapItemControl, aBackground: background, aUpgradControl: upgradeControl) {
         this.gameScene = aScene;
         this.collision = aCollision;
         this.gridArray = aGridArray;
         this.itemControl = aItemControl;
         this.background = aBackground;
+        this.upgradControl = aUpgradControl;
         monster_zombie.loadSprite(this.gameScene);
         monster_crystal.loadSprite(this.gameScene);
         monster_skeleton.loadSprite(this.gameScene);
+        monster_hog.loadSprite(this.gameScene);
+        monster_mummy.loadSprite(this.gameScene)
     }
 
     private monsterSpawn(pos_x: number, pos_y: number) {
-        let newmonster: monsterParam = { name: '', appearRate: 0, count: 0 };
+        let newmonster: monsterParam = { name: '', appearRate: 0, count: 0, preSpawn: false };
         for (let i = 0; i < this.monsterParam.length; i++) {
             let spawnRoll = Math.random();
             if (this.monsterParam[i].appearRate >= spawnRoll) {
@@ -76,9 +82,24 @@ export class monsterControl {
                 this.addMonsterSkeleton(pos_x, pos_y);
                 break;
             }
+            case "hog": {
+                this.addMonsterHog(pos_x, pos_y);
+                break;
+            }
+            case "mummy": {
+                this.addMonsterMummy(pos_x, pos_y);
+                break;
+            }
             default: {
                 break;
             }
+        }
+
+        if (newmonster.preSpawn) {
+            if (newmonster.count <= 0) {
+                this.monsterParam.splice(this.monsterParam.indexOf(newmonster), 1);
+            }
+            this.monsterSpawn(pos_x, pos_y)
         }
     }
 
@@ -102,6 +123,20 @@ export class monsterControl {
         this.monsterArray.push(new_crystal);
     }
 
+    private addMonsterHog(pos_x: number, pos_y: number) {
+        let monster = new monster_hog(this.gameScene, this.collision, this.gridArray);
+        monster.createAnims(this.gameScene);
+        monster.create(this.gameScene, pos_x, pos_y);
+        this.monsterArray.push(monster);
+    }
+
+    private addMonsterMummy(pos_x: number, pos_y: number) {
+        let monster = new monster_mummy(this.gameScene, this.collision, this.gridArray);
+        monster.createAnims(this.gameScene);
+        monster.create(this.gameScene, pos_x, pos_y);
+        this.monsterArray.push(monster);
+    }
+
     public update(aPlayerClass: character_swordsman, aUpgradeEnd: boolean) {
         if (this.roundPlaying) {
             for (let i = 0; i < this.monsterArray.length; i++) {
@@ -121,8 +156,8 @@ export class monsterControl {
                         for (let i = 0; i < this.monsterArray.length; i++) {
                             let curr_healing_monster = this.monsterArray[i];
                             if (!isCrystal(curr_healing_monster)) {
-                                let heal = 15 + 1 * this.currRound;
-                                curr_healing_monster.isHealed(heal);
+                                let heal = 10 + 0.5 * this.currRound;
+                                curr_healing_monster.isHealed(curr_monster.getHeal());
                             }
                         }
                         curr_monster.canHeal = false;
@@ -134,10 +169,10 @@ export class monsterControl {
                     this.monsterArray.splice(i, 1);
                     i--;
                     if (isCrystal(curr_monster)) {
-                        this.scoreGained += 500;
+                        this.scoreGained += 600;
+                        this.healthGained += 30;
                     }
                     this.scoreGained += 100;
-                    // this.healthGained += 30;
                     let itemRoll = Math.random();
                     if (curr_monster.itemDropChance >= itemRoll) {
                         let pos = curr_monster.sprite.getCenter();
@@ -157,7 +192,7 @@ export class monsterControl {
             if (!this.roundCountDown && aUpgradeEnd) {
                 this.lastRoundTick = utils.getTick();
                 this.roundCountDown = true;
-                if ((this.currRound - 1) % 10 == 0){
+                if ((this.currRound - 1) % 5 == 0) {
                     setTimeout(() => {
                         this.background.createGrid();
                     }, 3000);
@@ -180,6 +215,9 @@ export class monsterControl {
         // console.log (this.gridArray)
         let pos_x;
         let crystalCount = Math.floor(this.currRound / 10) + 2;
+        if (this.currRound <= 5) {
+            crystalCount = 1;
+        }
         for (let i = 0; i < crystalCount; i++) {
             for (; ;) {
                 pos_y = 50 + (Math.floor(Phaser.Math.FloatBetween(0, 6)) * 75);
@@ -190,7 +228,6 @@ export class monsterControl {
                 let curr_col = (Math.floor((pos_x) / 25)) - 1;
                 let ground_value_1 = this.gridArray[curr_row][curr_col];
                 let ground_value_2 = this.gridArray[curr_row][curr_col + 1];
-                console.log("value1: " + ground_value_1 + " & value2: " + ground_value_2)
 
                 if ((ground_value_1 == 1) && (ground_value_2 == 1)) {
                     console.log(curr_col)
@@ -199,7 +236,6 @@ export class monsterControl {
                 }
             }
         }
-
         this.monsterParam = this.monsterData.getArray('round' + this.currRound);
     }
 
@@ -208,10 +244,10 @@ export class monsterControl {
         this.roundPlaying = false;
         this.scoreGained += this.scorePerRound;
         this.scorePerRound += 250;
-        if (this.currRound % 10 == 0){
+        if (this.currRound % 5 == 0) {
             this.background.destroyBrick();
-            
         }
+        this.healthGained += 30;
         this.currRound++;
     }
 

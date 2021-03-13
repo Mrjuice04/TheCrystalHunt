@@ -26,19 +26,19 @@ export class levelUp {
         this.text = this.gameScene.add.text(pos.x, pos.y + 2, 'hi');
         this.text.setOrigin(0.5, 1);
         this.text.setCrop(0, 0, 0, this.text.height);
-        if (this.spawnRoll <= 1.3) {
-            if (this.spawnRoll < 0.1) {
+        if (this.spawnRoll <= 1.2) {
+            if (this.spawnRoll < 0.05) {
                 this.text.setText("Ability 3 Lvl Up")
-            } else if (this.spawnRoll < 0.5) {
+            } else if (this.spawnRoll < 0.35) {
                 this.text.setText("Ability 2 Lvl Up");
-            } else if (this.spawnRoll < 0.8) {
+            } else if (this.spawnRoll < 0.7) {
                 this.text.setText("Ability 1 Lvl Up");
             } else {
                 this.text.setText("Basic Attack Lvl Up");
             }
             this.sprite.setTint(0xFF0040);
         } else {
-            if (this.spawnRoll - 1.3 < 0.4) {
+            if (this.spawnRoll < 1.6) {
                 this.sprite.setTint(0x00FF00);
                 this.text.setText("Max HP Up");
             } else {
@@ -53,11 +53,11 @@ export class levelUp {
 
         if (this.keyCRTL.isDown) {
             let attack;
-            if (this.spawnRoll <= 1.3) {
-                if (this.spawnRoll < 0.1) {
+            if (this.spawnRoll <= 1.2) {
+                if (this.spawnRoll < 0.05) {
                     attack = 3;
                     console.log("attack3LvlUp");
-                } else if (this.spawnRoll < 0.4) {
+                } else if (this.spawnRoll < 0.35) {
                     attack = 2
                     console.log("attack2LvlUp");
                 } else if (this.spawnRoll < 0.7) {
@@ -69,7 +69,7 @@ export class levelUp {
                 }
                 aPlayer.attackLevelUp(attack);
             } else {
-                if (this.spawnRoll - 1.3 < 0.4) {
+                if (this.spawnRoll < 1.6) {
                     aPlayer.incMaxHealth(10);
                     aPlayer.isHealed(75);
                     console.log("incMaxHp");

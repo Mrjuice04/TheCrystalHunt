@@ -40,7 +40,7 @@ export class character_sword_charge {
     }
 
     public create(aPosX: number, aPosY: number) {
-        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "charge_effect");
+        this.sprite = this.gameScene.physics.add.sprite(aPosX, aPosY, "charge_effect").setDepth(2);
         this.sprite.body.setAllowGravity(false);
         this.sprite.setScale(1.2, 1.2);
         this.collision.addPlayerAttack(this);
@@ -69,7 +69,7 @@ export class character_sword_charge {
             } else {
                 velocityX = -200;
             }
-            aMonster.isKnockbacked(velocityX, -100, 1000, true, this.stunTime);
+            aMonster.isKnockbacked(velocityX, 0, 1000, true, this.stunTime);
         } else {
             if (isCrystal(aMonster)) {
                 aMonster.isDamaged(this.damage);
@@ -94,6 +94,7 @@ export class character_sword_charge {
         this.sprite.anims.play("charge_effect", true);
         setTimeout(() => {
             this.sprite.destroy();
+            this.collision.deleteCollider(this);
         }, 250)
     }
 

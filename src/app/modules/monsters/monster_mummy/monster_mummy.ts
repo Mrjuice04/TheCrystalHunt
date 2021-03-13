@@ -1,42 +1,42 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { collision } from 'src/app/modules/collision';
-import { monster_skeleton_bone } from 'src/app/modules/monsters/monster_skeleton/monster_skeleton_bone';
+import { monster_mummy_bandage } from 'src/app/modules/monsters/monster_mummy/monster_mummy_bandage';
 import { utils } from 'src/app/modules/utils';
 
-export class monster_skeleton {
+export class monster_mummy {
     name: string = "zombie";
     collision: collision;
     sprite!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     gameScene: Phaser.Scene;
     monsterToPlayerX!: number;
     monsterToPlayerY!: number;
-    healthPoint: number = 100;
-    maxHealthPoint: number = 100;
+    healthPoint: number = 300;
+    maxHealthPoint: number = 300;
     canSpawnMonster: boolean = false;
     gridArray: integer[][];
+    stateValue: string = "walking";
     jump_target!: number;
-    maxVelocityX: number = Math.round(Phaser.Math.Between(110, 130));
+    maxVelocityX: number = Math.round(Phaser.Math.Between(90, 125));
     destoryed: boolean = false;
 
     public itemDropChance: number = 0.4;
-
+    
 
     // ticks
-    private lastAttackTick!: number;
     private lastJumpTick!: number;
     private lastDashTick!: number;
     private lastStunTick!: number;
     private lastSearchTick!: number
-    private lastTurnTick!: number;
     private stunnedTime!: number;
 
+    private jumpStateValue: string = "idle";
+    private dashStateValue: string = "idle";
+    private jumpEndTick!: number;
 
-    //state values
-    private boneStateValue: string = "idle";
-    private spriteStateValue: string = "walking";
-
-    //effects
-    private boneEffect: any;
+    private lastBandageTick!: number;
+    private bandageStateValue: string = "idle";
+    private bandageEffect!: monster_mummy_bandage;
+    private lastBandageLength!: number;
 
     constructor(aScene: Phaser.Scene, aCollision: collision, aGridArray: integer[][]) {
         this.collision = aCollision;
@@ -45,20 +45,20 @@ export class monster_skeleton {
     }
 
     static loadSprite(aScene: Phaser.Scene) {
-        aScene.load.spritesheet("monster_skeleton", "./assets/monsters/monster_skeleton/monster_skeleton.png", { frameWidth: 26, frameHeight: 32 });
-        aScene.load.spritesheet("bone", "./assets/monsters/monster_skeleton/monster_skeleton_bone.png", { frameWidth: 52, frameHeight: 52 });
-        aScene.load.audio('monster1_damage1', './assets/audio/hurt_222.wav');
-        aScene.load.audio('monster1_dead', './assets/audio/hurt_251.wav');
-        aScene.load.audio('skeleton_preapre_attack', './assets/audio/CCA_012.wav');
-        aScene.load.audio('skeleton_attack', './assets/audio/laser_018.wav');
+        aScene.load.spritesheet("monster_mummy", "./assets/monsters/monster_mummy/monster_mummy.png", { frameWidth: 26, frameHeight: 32 });
+        aScene.load.image("monster_mummy_bandage", "./assets/monsters/monster_mummy/monster_mummy_bandage.png");
+        aScene.load.audio('monster_mummy_damaged', './assets/audio/hurt_222.wav');
+        aScene.load.audio('monster_mummy_dead', './assets/audio/hurt_251.wav');
+        aScene.load.audio('monster_mummy_attack', './assets/audio/CCA_014.wav');
     }
 
     //General Public Function
     public create(aScene: Phaser.Scene, pos_x: number, pos_y: number) {
-        this.sprite = aScene.physics.add.sprite(pos_x, pos_y, "monster_skeleton").setScale(0.75, 0.75);
+        this.sprite = aScene.physics.add.sprite(pos_x, pos_y, "monster_mummy").setScale(0.75, 0.75);
+
         this.sprite.setCollideWorldBounds(true);
         let directionRoll = Math.random();
-        if (directionRoll > 0.5){
+        if (directionRoll > 0.5) {
             this.sprite.setVelocityX(-100);
         } else {
             this.sprite.flipX = false;
@@ -66,19 +66,19 @@ export class monster_skeleton {
         }
         this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
         this.sprite.setPushable(false);
-        this.createAnims(aScene);
-        this.sprite.anims.play("monster_skeleton_move");
-        this.gameScene.sound.add('monster1_damage1');
-        this.gameScene.sound.add('monster1_damage2');
-        this.gameScene.sound.add('monster1_damage3');
-        this.gameScene.sound.add('monster1_dead');
-        this.gameScene.sound.add('monster1_attack');
+
+        this.sprite.anims.play("monster_mummy_move");
+        this.gameScene.sound.add('monster_mummy_damaged');
+        this.gameScene.sound.add('monster_mummy_dead');
+        this.gameScene.sound.add('monster_mummy_attack');
         this.collision.addMonster(this);
     }
 
     public update() {
         this.machine();
-        this.boneMachine();
+        this.jumpMachine();
+        this.dashMachine();
+        this.bandageMachine();
     }
 
     public getPostision(aPlayerPosition: Phaser.Math.Vector2) {
@@ -91,42 +91,34 @@ export class monster_skeleton {
         this.healthPoint -= aDamage;
         this.sprite.setTint(0xF86161);
         setTimeout(() => {
-            if (this.sprite.tintTopLeft == 0xF86161){
+            if (this.sprite.tintTopLeft == 0xF86161) {
                 this.sprite.clearTint();
             }
         }, 200)
         if (this.healthPoint <= 0) {
-            this.gameScene.sound.play('monster1_dead');
+            this.gameScene.sound.play('monster_mummy_dead');
         }
         else {
-            this.gameScene.sound.play(`monster1_damage1`);
+            let rand_sound = Math.floor(Math.random() * 3) + 1;
+            this.gameScene.sound.play(`monster_mummy_damaged`);
         }
     }
 
-    
-    public isHealed(aHeal: number){
+    public isHealed(aHeal: number) {
         this.healthPoint += aHeal;
-        if(this.healthPoint > this.maxHealthPoint){
+        if (this.healthPoint > this.maxHealthPoint) {
             this.healthPoint = this.maxHealthPoint;
         }
         this.sprite.setTint(0xBCF5A9);
         setTimeout(() => {
-            if (this.sprite.tintTopLeft == 0xBCF5A9){
+            if (this.sprite.tintTopLeft == 0xBCF5A9) {
                 this.sprite.clearTint();
             }
         }, 200)
     }
 
-    public getMaxHealth(){
-        return this.maxHealthPoint;
-    }
-
-    public getCurrHealth() {
-        return this.healthPoint;
-    }
-
     public isSlowed(slowPercent: number) {
-        let velocityX = this.sprite.body.velocity.x / slowPercent;
+        let velocityX = this.sprite.body.velocity.x * slowPercent;
         this.sprite.setVelocityX(velocityX);
     }
 
@@ -135,12 +127,10 @@ export class monster_skeleton {
             return;
         }
         this.sprite.setAccelerationX(0);
-        this.sprite.setVelocityX(0);
         this.lastStunTick = utils.getTick();
         this.sprite.setPushable(true);
         this.stunnedTime = aTime;
-        this.spriteStateValue = "stunned";
-        this.boneStateValue = "idle";
+        this.stateValue = "stunned";
     }
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
@@ -153,8 +143,7 @@ export class monster_skeleton {
         this.sprite.setVelocity(aVelocityX, aVelocityY);
         this.lastStunTick = utils.getTick();
         this.stunnedTime = aTime;
-        this.spriteStateValue = "stunned";
-        this.boneStateValue = "idle";
+        this.stateValue = "stunned";
         if (aStun) {
             setTimeout(() => {
                 if (this.sprite) {
@@ -164,83 +153,80 @@ export class monster_skeleton {
         }
     }
 
+    public getMaxHealth(){
+        return this.maxHealthPoint;
+    }
+
+    public getCurrHealth() {
+        return this.healthPoint;
+    }
+
     public createAnims(aScene: Phaser.Scene) {
         this.gameScene.anims.create({
-            key: "monster_skeleton_move",
-            frames: this.gameScene.anims.generateFrameNumbers("monster_skeleton", { start: 14, end: 17 }),
+            key: "monster_mummy_move",
+            frames: this.gameScene.anims.generateFrameNumbers("monster_mummy", { start: 14, end: 17 }),
             frameRate: 10,
             repeat: -1,
         });
 
         this.gameScene.anims.create({
-            key: "monster_skeleton_die",
-            frames: this.gameScene.anims.generateFrameNumbers("monster_skeleton", { start: 0, end: 4 }),
+            key: "monster_mummy_die",
+            frames: this.gameScene.anims.generateFrameNumbers("monster_mummy", { start: 0, end: 4 }),
             frameRate: 10,
         })
 
         this.gameScene.anims.create({
-            key: "monster_skeleton_idle",
-            frames: this.gameScene.anims.generateFrameNumbers("monster_skeleton", { start: 7, end: 10 }),
+            key: "monster_mummy_idle",
+            frames: this.gameScene.anims.generateFrameNumbers("monster_mummy", { start: 7, end: 10 }),
             frameRate: 10,
             repeat: -1,
         });
 
-        this.gameScene.anims.create({
-            key: "bone",
-            frames: this.gameScene.anims.generateFrameNumbers("bone", { start: 0, end: 3 }),
-            frameRate: 10,
-            repeat: -1,
-        })
     }
 
 
 
 
     //Character Functions
+
+
     private machine() {
-        switch (this.spriteStateValue) {
+        switch (this.stateValue) {
             case "idle": {
 
                 break;
             }
             case "walking": {
                 if (this.checkJump()) {
-                    this.doJump();
-                    this.spriteStateValue = "jumping";
-                } else if (this.checkAttack()) {
-                    this.boneStateValue = "start";
-                    this.spriteStateValue = "attacking";
+                    this.stateValue = "jumping";
+                    this.jumpStateValue = "start";
+                } else if (this.checkBandage()) {
+                    this.stateValue = "attacking";
+                    this.bandageStateValue = "start";
                 } else if (this.checkDash()) {
-                    this.spriteStateValue = "dashing";
+                    this.stateValue = "dashing";
+                    this.dashStateValue = "start";
                 } else {
+                    this.sprite.setMaxVelocity(this.maxVelocityX, 10000)
                     this.walking();
                 }
                 break;
             }
             case "jumping": {
-                if (this.checkJumpHeight()) {
-                    this.moveAfterJump();
-                }
-                if (this.isJumpEnd()) {
-                    this.moveAfterJump();
-                    this.spriteStateValue = "walking";
-                }
-                break;
-            }
-            case "dashing": {
-                if (this.doDash()) {
-                    setTimeout(() => {
-                        if (!this.destoryed) {
-                            this.spriteStateValue = "walking";
-                            this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
-                        }
-                    }, 200)
+                if (this.jumpStateValue == "idle") {
+                    this.stateValue = "walking";
                 }
                 break;
             }
             case "attacking": {
-                if (this.boneStateValue == "idle") {
-                    this.spriteStateValue = "walking"
+                if (this.bandageStateValue == "idle") {
+                    this.stateValue = "walking";
+                }
+                break;
+            }
+            case "dashing": {
+                if (this.dashStateValue == "idle") {
+                    this.stateValue = "walking";
                 }
                 break;
             }
@@ -248,89 +234,128 @@ export class monster_skeleton {
                 this.sprite.setVelocityX(0);
                 if (this.isStunEnd()) {
                     this.sprite.setPushable(false);
-                    this.spriteStateValue = "walking";
+                    this.stateValue = "walking";
                 }
                 break;
             }
             default: {
-                this.spriteStateValue = "walking";
+                this.stateValue = "walking";
                 break;
             }
         }
     }
 
-
-    private boneMachine() {
-        switch (this.boneStateValue) {
+    private jumpMachine() {
+        switch (this.jumpStateValue) {
             case "idle": {
                 break;
             }
             case "start": {
-                console.log("doAttack");
-                if (this.doThrow()) {
-                    this.boneStateValue = "idle";
+                this.doJump();
+                this.jumpStateValue = "jumping";
+                break;
+            }
+            case "jumping": {
+                if (this.checkJumpHeight()) {
+                    this.jumpStateValue = "jump_end";
+                    this.jumpEndTick = utils.getTick();
+                    this.moveAfterJump();
+                } else if (this.sprite.body.velocity.y > 0 && !this.checkJumpHeight()) {
+                    this.jumpStateValue = "idle";
+                }
+                break;
+            }
+            case "jump_end": {
+                if (this.sprite.body.velocity.y) {
+                    this.jumpStateValue = "idle";
                 }
                 break;
             }
             default: {
-                this.boneStateValue = "idle";
+                this.jumpStateValue = "idle";
                 break;
             }
         }
     }
 
-    // if (utils.tickElapsed(this.lastTurnTick) >= 500 || this.lastTurnTick == undefined)
+    private dashMachine() {
+        switch (this.dashStateValue) {
+            case "idle": {
+                break;
+            }
+            case "start": {
+                this.doDash();
+                this.dashStateValue = "dashing";
+                break;
+            }
+            case "dashing": {
+                if (this.sprite.body.touching.down) {
+                    this.dashStateValue = "idle";
+                    this.sprite.setMaxVelocity(this.maxVelocityX, 10000);
+                }
+                break;
+            }
+            default: {
+                this.dashStateValue = "idle";
+                break;
+            }
+        }
+    }
+
+
+    private bandageMachine() {
+        switch (this.bandageStateValue) {
+            case "idle": {
+                break;
+            }
+            case "start": {
+                this.createBandageEffect();
+                this.bandageStateValue = "extending";
+                break;
+            }
+            case "extending": {
+                this.sprite.setVelocityX(0);
+                this.extendingBandage();
+                if (this.bandageEffect.hasHitPlayer() || utils.tickElapsed(this.lastBandageTick) >= 500) {
+                    this.lastBandageLength = utils.tickElapsed(this.lastBandageTick);
+                    this.lastBandageTick = utils.getTick();
+                    this.bandageStateValue = "returning";
+                }
+                break;
+            }
+            case "returning": {
+                this.sprite.setVelocityX(0);
+                this.pullingBandage();
+                if (utils.tickElapsed(this.lastBandageTick) >= 500) {
+                    this.bandageEffect.destroy();
+                    this.bandageStateValue = "idle";
+                    this.lastBandageTick = utils.getTick();
+                }
+                break;
+            }
+            default: {
+                this.bandageStateValue = "idle";
+                break;
+            }
+        }
+    }
+
+
     private walking() {
         if (this.monsterToPlayerY <= 10 && this.monsterToPlayerY >= -10) {
-            if (!this.sprite.flipX) {
-                if (this.sprite.getCenter().x < 20 && this.monsterToPlayerX > -300){
-                    this.sprite.setVelocityX(0);
-                    this.sprite.setAccelerationX(0);
-                    this.sprite.anims.play("monster_skeleton_idle", true);
-                    return;
-                }
-                if (this.monsterToPlayerX <= -300) {
+            if (this.sprite.flipX) {
+                if (this.monsterToPlayerX <= 0) {
+                    this.sprite.flipX = false;
                     this.sprite.setAccelerationX(100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
-                } else if (this.monsterToPlayerX > -300 && this.monsterToPlayerX < -100) {
-                    this.sprite.setVelocityX(0);
-                    this.sprite.setAccelerationX(0);
-                    this.sprite.anims.play("monster_skeleton_idle", true);
-                } else if (this.monsterToPlayerX > 0 && this.monsterToPlayerX < 150){
-                    this.sprite.setAccelerationX(100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
                 } else {
-                    this.sprite.flipX = true;
                     this.sprite.setAccelerationX(-100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
-                }
-                if (this.sprite.getCenter().x > 780){
-                    this.sprite.flipX = true;
                 }
             } else {
-                if (this.sprite.getCenter().x > 780 && this.monsterToPlayerX < 300){
-                    this.sprite.setVelocityX(0);
-                    this.sprite.setAccelerationX(0);
-                    this.sprite.anims.play("monster_skeleton_idle", true);
-                    return;
-                }
-                if (this.monsterToPlayerX >= 300) {
+                if (this.monsterToPlayerX >= 0) {
+                    this.sprite.flipX = true;
                     this.sprite.setAccelerationX(-100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
-                } else if (this.monsterToPlayerX < 300 && this.monsterToPlayerX > 100) {
-                    this.sprite.setVelocityX(0);
-                    this.sprite.setAccelerationX(0);
-                    this.sprite.anims.play("monster_skeleton_idle", true);
-                } else if (this.monsterToPlayerX < 0 && this.monsterToPlayerX > -150){
-                    this.sprite.setAccelerationX(-100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
                 } else {
-                    this.sprite.flipX = false;
                     this.sprite.setAccelerationX(100);
-                    this.sprite.anims.play("monster_skeleton_move", true);
-                }
-                if (this.sprite.getCenter().x < 20){
-                    this.sprite.flipX = false;
                 }
             }
         } else {
@@ -402,17 +427,6 @@ export class monster_skeleton {
         return false;
     }
 
-    private isJumpEnd(): boolean {
-        if (this.sprite.body.touching.down) {
-            let curr_height = this.sprite.getBottomCenter().y
-            if (curr_height + 25 <= this.jump_target) {
-                this.findPlayer();
-            }
-            return true;
-        }
-        return false;
-    }
-
     private moveAfterJump() {
         if (!this.sprite.flipX) {
             this.sprite.setAccelerationX(100);
@@ -450,28 +464,22 @@ export class monster_skeleton {
     }
 
     private doDash() {
-        if (utils.tickElapsed(this.lastDashTick) >= 100) {
-            if (this.sprite.flipX == false) {
-                this.sprite.setMaxVelocity(200, 10000);
-                this.sprite.setVelocity(120, -60);
-            } else if (this.sprite.flipX == true) {
-                this.sprite.setMaxVelocity(200, 10000);
-                this.sprite.setVelocity(-120, -60);
-            }
-
-            return true;
+        if (this.sprite.flipX == false) {
+            this.sprite.setMaxVelocity(200, 10000);
+            this.sprite.setVelocity(120, -60);
+        } else if (this.sprite.flipX == true) {
+            this.sprite.setMaxVelocity(200, 10000);
+            this.sprite.setVelocity(-120, -60);
         }
-        return false;
     }
 
 
-    private checkAttack(): boolean {
+    private checkBandage(): boolean {
         if (this.monsterToPlayerY <= 10 && this.monsterToPlayerY >= -10) {
-            if ((this.sprite.flipX && this.monsterToPlayerX >= 0 && this.monsterToPlayerX <= 300) || (!this.sprite.flipX && this.monsterToPlayerX <= 0 && this.monsterToPlayerX >= -300)) {
+            if ((this.sprite.flipX && this.monsterToPlayerX >= 0 && this.monsterToPlayerX <= 200) || (!this.sprite.flipX && this.monsterToPlayerX <= 0 && this.monsterToPlayerX >= -200)) {
                 if (this.sprite.body.touching.down) {
-                    if (((this.lastAttackTick == undefined) || (utils.tickElapsed(this.lastAttackTick) >= 2500))) {
-                        this.lastAttackTick = utils.getTick();
-                        this.gameScene.sound.play("skeleton_preapre_attack");
+                    if (((this.lastBandageTick == undefined) || (utils.tickElapsed(this.lastBandageTick) >= 2500))) {
+                        this.lastBandageTick = utils.getTick();
                         return true;
                     }
                 }
@@ -480,23 +488,26 @@ export class monster_skeleton {
         return false;
     }
 
-    private doThrow() {
-        this.sprite.setVelocityX(this.sprite.body.velocity.x * 0.1);
-        if (utils.tickElapsed(this.lastAttackTick) >= 750) {
-            this.boneEffect = new monster_skeleton_bone(this.gameScene, this.collision);
-            let pos = this.sprite.getCenter();
-            this.boneEffect.create(pos.x, pos.y);
-            if (!this.sprite.flipX) {
-                this.boneEffect.sprite.setVelocity(400, -100);
-            } else {
-                this.boneEffect.sprite.setVelocity(-400, -100);
-            }
-            this.gameScene.sound.play("skeleton_attack");
-            return true;
+    private createBandageEffect() {
+        this.bandageEffect = new monster_mummy_bandage(this.gameScene, this.collision);
+        let pos = this.sprite.getCenter();
+        if (!this.sprite.flipX) {
+            pos = this.sprite.getRightCenter();
+            this.bandageEffect.create(pos.x, pos.y, 0);
+        } else {
+            pos = this.sprite.getLeftCenter();
+            this.bandageEffect.create(pos.x, pos.y, 1);
         }
-        return false;
+        this.gameScene.sound.play("monster_mummy_attack");
     }
 
+    private extendingBandage() {
+        this.bandageEffect.extending(utils.tickElapsed(this.lastBandageTick));
+    }
+
+    private pullingBandage() {
+        this.bandageEffect.pulling(utils.tickElapsed(this.lastBandageTick), this.lastBandageLength);
+    }
 
     private isStunEnd() {
         if (utils.tickElapsed(this.lastStunTick) >= this.stunnedTime) {
@@ -506,6 +517,8 @@ export class monster_skeleton {
         }
         return false;
     }
+
+
 
     private findPlayer() {
         if (this.sprite.flipX == true) {
@@ -520,8 +533,9 @@ export class monster_skeleton {
     }
 
     public destroy() {
-        this.sprite.play("monster_skeleton_die", true)
+        this.sprite.play("monster_mummy_die", true)
         this.destoryed = true;
+        this.bandageEffect.destroy();
         setTimeout(() => {
             this.sprite.destroy();
         }, 500)

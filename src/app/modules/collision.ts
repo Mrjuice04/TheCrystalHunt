@@ -71,7 +71,9 @@ export class collision {
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
                 if (aMonster == gColliderInfoArray[i].spriteClass.sprite) {
-                    gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
+                    if (gColliderInfoArray[i].attackClass !== undefined){
+                        gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
+                    }
                     if (gColliderInfoArray[i].attackClass.oneTimeCollision) {
                         gColliderInfoArray[i].collider.destroy();
                         gColliderInfoArray.splice(i, 1)
@@ -106,9 +108,20 @@ export class collision {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
                 if (aPlayer == gColliderInfoArray[i].spriteClass.sprite) {
                     gColliderInfoArray[i].attackClass.hitPlayer(gColliderInfoArray[i].spriteClass);
-                    gColliderInfoArray[i].collider.destroy();
-                    gColliderInfoArray.splice(i, 1)
-                    i--;
+                    if (gColliderInfoArray[i].attackClass.oneTimeCollision) {
+                        gColliderInfoArray[i].collider.destroy();
+                        gColliderInfoArray.splice(i, 1)
+                        i--;
+                    } else {
+                        gColliderInfoArray[i].collider.active = false;
+                        setTimeout(() => {
+                            if (gColliderInfoArray[i] !== undefined) {
+                                if (gColliderInfoArray[i].attackClass.sprite.active) {
+                                    gColliderInfoArray[i].collider.active = true;
+                                }
+                            }
+                        }, gColliderInfoArray[i].attackClass.collisionFrequency)
+                    }
                 }
             }
         }
@@ -136,6 +149,12 @@ export class collision {
         for (let i = 0; i < this.brickArray.length; i++) {
             this.gameScene.physics.add.collider(aItem.sprite, this.brickArray[i]);
         }
+    }
+    
+    addUpgradeIcon(aIcon: any){
+        let collider = this.gameScene.physics.add.overlap(aIcon.sprite, this.player.sprite, this.playerCollectItem);
+        let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aIcon };
+        gColliderInfoArray.push(collision_info);
     }
 
     playerCollectItem(aItem: Phaser.Types.Physics.Arcade.ArcadeColliderType, aPlayer: Phaser.Types.Physics.Arcade.ArcadeColliderType) {

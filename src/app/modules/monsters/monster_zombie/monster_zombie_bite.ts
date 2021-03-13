@@ -9,6 +9,8 @@ export class monster_zombie_bite{
     collision: collision;
     damage: number = 10;
     stunTime: number = 300; //ms
+    public oneTimeCollision: boolean = true;
+
 
     constructor(aScene: Phaser.Scene, aCollision: collision){
         this.gameScene = aScene;
