@@ -14,7 +14,9 @@ import { upgradeControl } from 'src/app/modules/mapItems/upgradeControl';
 declare global {
   interface Window {
     onGameOver: () => void;
+    onFirstBossClear: () => void;
     onGameOverParent: any;
+    onFirstBossClearParent: any;
   }
 }
 
@@ -25,6 +27,7 @@ declare global {
 })
 export class GameComponent implements OnInit {
   @Output() gameOver: EventEmitter<void> = new EventEmitter();
+  @Output() firstBossClear: EventEmitter<void> = new EventEmitter();
 
   phaserGame!: Phaser.Game;
   config: Phaser.Types.Core.GameConfig;
@@ -50,6 +53,11 @@ export class GameComponent implements OnInit {
     window.onGameOverParent = this;
     window.onGameOver = () => {
       window.onGameOverParent.gameOver.emit();
+    }
+
+    window.onFirstBossClearParent = this;
+    window.onFirstBossClear = () => {
+      window.onFirstBossClearParent.firstBossClear.emit();
     }
 
     this.phaserGame = new Phaser.Game(this.config);
@@ -121,6 +129,12 @@ class MainScene extends Phaser.Scene {
     //interface update
     this.score += this.monsterControl.getScore();
     this.interface.changeScore(this.score);
+    if (this.currRound !== this.monsterControl.getRound()){
+      if (this.monsterControl.getRound() == 21){
+        window.onFirstBossClear();
+      }
+    }
+
     this.currRound = this.monsterControl.getRound();
     this.interface.changeRound(this.currRound);
     this.interface.update();
@@ -136,5 +150,7 @@ class MainScene extends Phaser.Scene {
         window.onGameOver();
       }
     }
+
+    
   }
 }

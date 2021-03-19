@@ -13,6 +13,8 @@ export class monster_mummy_bandage {
     private isHit: boolean = false;
     private targetPlayer!: character_swordsman;
     public oneTimeCollision: boolean = true;
+    public groundColliding: boolean = false;
+
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision) {

@@ -10,14 +10,14 @@ export class shieldLevelData {
 
     shieldParamArray: Array<shieldLevelParam> = [
         { damage: 25, stunDuration: 2000, shieldDuration: 2000 },
-        { damage: 30, stunDuration: 2000, shieldDuration: 2000 },
-        { damage: 35, stunDuration: 2500, shieldDuration: 2500 }, // added explosion
-        { damage: 40, stunDuration: 2500, shieldDuration: 2500 },
-        { damage: 45, stunDuration: 2500, shieldDuration: 2500 },
-        { damage: 50, stunDuration: 3000, shieldDuration: 3000 }, // allow attack
-        { damage: 55, stunDuration: 3000, shieldDuration: 3000 },
-        { damage: 60, stunDuration: 3000, shieldDuration: 3000 },
-        { damage: 65, stunDuration: 4000, shieldDuration: 4000 }  // explosion stun all
+        { damage: 25, stunDuration: 2000, shieldDuration: 2000 },
+        { damage: 30, stunDuration: 2500, shieldDuration: 2500 }, // added explosion
+        { damage: 30, stunDuration: 2500, shieldDuration: 2500 },
+        { damage: 30, stunDuration: 2500, shieldDuration: 2500 },
+        { damage: 35, stunDuration: 3000, shieldDuration: 3000 }, // allow attack
+        { damage: 35, stunDuration: 3000, shieldDuration: 3000 },
+        { damage: 40, stunDuration: 3000, shieldDuration: 3000 },
+        { damage: 45, stunDuration: 4000, shieldDuration: 4000 }  // explosion stun all
     ]
 
     constructor() {

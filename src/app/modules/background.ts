@@ -84,7 +84,7 @@ export class background {
         }
 
         if (this.isInit) {
-            for (let i = 21; i < 24; i++) {
+            for (let i = 21; i < 22; i++) {
                 for (let j = 0; j < 32; j++) {
                     let x = j * 25 + 12.5;
                     let y = i * 25 + 12.5;

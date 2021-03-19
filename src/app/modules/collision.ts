@@ -4,7 +4,7 @@ import { character_swordsman } from 'src/app/modules/characters/character_holykn
 import { monsterControl } from 'src/app/modules/monsters/monsterControl';
 import { IfStmt } from '@angular/compiler';
 import { monster_crystal } from 'src/app/modules/monsters/monster_crystal/monster_crystal';
-import { monsterType } from 'src/app/modules/monsters/monster_type';
+import { monsterType } from 'src/app/modules/monsters/monsterType';
 
 
 // Global variables
@@ -71,7 +71,7 @@ export class collision {
         for (let i = 0; i < gColliderInfoArray.length; i++) {
             if (aAttack == gColliderInfoArray[i].attackClass.sprite) {
                 if (aMonster == gColliderInfoArray[i].spriteClass.sprite) {
-                    if (gColliderInfoArray[i].attackClass !== undefined){
+                    if (gColliderInfoArray[i].attackClass.hitMonster !== undefined){
                         gColliderInfoArray[i].attackClass.hitMonster(gColliderInfoArray[i].spriteClass);
                     }
                     if (gColliderInfoArray[i].attackClass.oneTimeCollision) {
@@ -97,8 +97,11 @@ export class collision {
         let collider = this.gameScene.physics.add.overlap(aAttack.sprite, this.player.sprite, this.monsterAttackHitPlayer);
         let collision_info: collisonInfo = { collider: collider, spriteClass: this.player, attackClass: aAttack };
         gColliderInfoArray.push(collision_info);
-        for (let i = 0; i < this.brickArray.length; i++) {
-            this.gameScene.physics.add.overlap(aAttack.sprite, this.brickArray[i], this.attackHitGround);
+        if (aAttack.groundColliding){
+            console.log("brick collision")
+            for (let i = 0; i < this.brickArray.length; i++) {
+                this.gameScene.physics.add.collider(aAttack.sprite, this.brickArray[i], this.attackHitGround);
+            }
         }
         gAttackArray.push(aAttack);
     }
@@ -130,7 +133,6 @@ export class collision {
     attackHitGround(aAttack: Phaser.Types.Physics.Arcade.ArcadeColliderType, aGround: Phaser.Types.Physics.Arcade.ArcadeColliderType) {
         for (let i = 0; i < gAttackArray.length; i++) {
             if (aAttack == gAttackArray[i].sprite) {
-                console.log(gAttackArray[i].hitGround);
                 if (gAttackArray[i].hitGround !== undefined) {
                     gAttackArray[i].hitGround();
                 }

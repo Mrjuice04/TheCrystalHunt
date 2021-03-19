@@ -131,4 +131,8 @@ export class levelUpItem {
             }
         }
     }
+
+    public getAbility(){
+        return this.ability;
+    }
 }

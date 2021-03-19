@@ -10,6 +10,8 @@ export class monster_zombie_bite{
     damage: number = 10;
     stunTime: number = 300; //ms
     public oneTimeCollision: boolean = true;
+    public groundColliding: boolean = false;
+
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision){

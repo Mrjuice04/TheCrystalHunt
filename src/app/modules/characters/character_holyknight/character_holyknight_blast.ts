@@ -4,6 +4,7 @@ import { utils } from 'src/app/modules/utils';
 import { monsterControl } from "../../monsters/monsterControl";
 import { monster_zombie } from 'src/app/modules/monsters/monster_zombie/monster_zombie';
 import { blastLevelParam, blastLevelData } from './character_holyknight_blast_level'
+import { isCrystal } from '../../monsters/monsterType';
 
 
 
@@ -54,10 +55,22 @@ export class character_sword_blast {
     }
 
     public hitMonster(aMonster: monster_zombie) {
-        let damage = this.damage + aMonster.getMaxHealth() * 0.07;
+        let damage;
+        let maxHealthDamage = aMonster.getMaxHealth() * 0.04;
+        if (aMonster.getMaxHealth() > 500){
+            maxHealthDamage = 500 * 0.04;
+        } 
+        if (isCrystal(aMonster)){
+            maxHealthDamage = 0;
+        }
+        if (!this.isExplosion) {
+            damage = this.damage + maxHealthDamage;
+        } else {
+            damage = this.damage / 2
+        }
         aMonster.isDamaged(damage);
         aMonster.isSlowed(1 - this.slowPercent);
-        if (this.level >= 2){
+        if (this.level >= 2) {
             aMonster.isStunned(100);
         }
         let pos = this.sprite.getCenter();
@@ -95,7 +108,7 @@ export class character_sword_blast {
         return this.blastCount;
     }
 
-    public getHealthGained(){
+    public getHealthGained() {
         let health = this.healthGained;
         this.healthGained = 0;
         return health;

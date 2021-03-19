@@ -11,13 +11,13 @@ export class chargeLevelData {
     slashParamArray: Array<chargeLevelParam> = [
         { damage: 20, duration: 1000, penetratePower: 0 },
         { damage: 20, duration: 1000, penetratePower: 0 },
-        { damage: 25, duration: 1000, penetratePower: 1 }, // added second charge
+        { damage: 20, duration: 1000, penetratePower: 1 }, // added second charge
         { damage: 25, duration: 1200, penetratePower: 1 },
-        { damage: 30, duration: 1200, penetratePower: 2 },
-        { damage: 30, duration: 1300, penetratePower: 2 }, // added wave
-        { damage: 35, duration: 1300, penetratePower: 3 },
-        { damage: 35, duration: 1300, penetratePower: 3 },
-        { damage: 40, duration: 1400, penetratePower: 9 }  // penetrating wave
+        { damage: 25, duration: 1200, penetratePower: 2 },
+        { damage: 25, duration: 1300, penetratePower: 2 }, // added wave
+        { damage: 30, duration: 1300, penetratePower: 3 },
+        { damage: 30, duration: 1300, penetratePower: 3 },
+        { damage: 35, duration: 1400, penetratePower: 9 }  // penetrating wave
     ]
 
     constructor() {

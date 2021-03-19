@@ -102,10 +102,10 @@ export class monster_crystal {
         if (this.healthPoint > 400) {
             this.healthPoint = 400;
         }
-        this.sprite.setTint(0xBCF5A9);
-        setTimeout(() => {
-            this.sprite.clearTint();
-        }, 200)
+        // this.sprite.setTint(0xBCF5A9);
+        // setTimeout(() => {
+        //     this.sprite.clearTint();
+        // }, 200)
     }
 
     public update() {

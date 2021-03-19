@@ -2,7 +2,7 @@ import { background } from 'src/app/modules/background';
 import { collision } from 'src/app/modules/collision';
 import { utils } from 'src/app/modules/utils';
 import { monsterControl } from "src/app/modules/monsters/monsterControl";
-import { monsterType, isCrystal } from 'src/app/modules/monsters/monster_type';
+import { monsterType, isCrystal } from 'src/app/modules/monsters/monsterType';
 import { slashLevelParam, slashLevelData} from './character_holyknight_slash_level'
 
 

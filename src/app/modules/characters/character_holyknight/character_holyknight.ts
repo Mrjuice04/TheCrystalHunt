@@ -26,7 +26,7 @@ export class character_swordsman {
     private maxHealthPoint: number = 150;
     private energyPoint: number = 0;
     private maxEnergyPoint: number = 100;
-    private energyGenRate: number = 0.1;
+    private speed: number = 100;
     private isInvulnerable: boolean = false;
     private isUnstoppable: boolean = false;
     private isDead: boolean = false;
@@ -205,6 +205,16 @@ export class character_swordsman {
         }, 200)
     }
 
+    public isSlowed(slowPercent: number, duration: number) {
+        if (!this.isUnstoppable){
+            let newspeed = this.speed * (1 - slowPercent);
+            this.speed = newspeed;
+            setTimeout(() => { 
+                this.speed = this.speed / (1 - slowPercent);
+            }, duration)
+        }
+    }
+
     public isDisplaced(aPosX: number, aPosY: number) {
         this.sprite.setPosition(aPosX, aPosY);
     }
@@ -231,11 +241,11 @@ export class character_swordsman {
 
     public isKnockbacked(aVelocityX: number, aVelocityY: number, aTime: number, aStun: boolean, aStunTime: number) {
         if (!this.isUnstoppable && !this.isDead) {
+            this.spriteStateValue = "stunned";
             this.sprite.setAccelerationX(0);
             this.sprite.setVelocity(aVelocityX, aVelocityY);
             this.lastStunTick = utils.getTick();
             this.stunnedDuration = aTime;
-            this.spriteStateValue = "stunned";
             if (aStun) {
                 setTimeout(() => {
                     if (this.sprite.active) {
@@ -422,10 +432,10 @@ export class character_swordsman {
             }
             case "playing": {
                 if (this.cursors.left.isDown) {
-                    this.sprite.setVelocityX(-125);
+                    this.sprite.setVelocityX(this.speed * -1.5);
                     this.sprite.flipX = true;
                 } else if (this.cursors.right.isDown) {
-                    this.sprite.setVelocityX(125);
+                    this.sprite.setVelocityX(this.speed * 1.5);
                     this.sprite.flipX = false;
                 }
                 if (this.checkDogeEnd()) {
@@ -647,14 +657,14 @@ export class character_swordsman {
     private doWalking() {
         if (this.cursors.left.isDown) {
             this.sprite.flipX = true;
-            this.sprite.setVelocityX(-100);
+            this.sprite.setVelocityX(-1 * this.speed);
             if (this.slashStateValue == "idle" && this.shieldStateValue == "idle" && this.chargeStateValue == "idle") {
                 this.sprite.anims.play("character_holyknight_move", true);
             }
             return true;
         } else if (this.cursors.right.isDown) {
             this.sprite.flipX = false;
-            this.sprite.setVelocityX(100);
+            this.sprite.setVelocityX(this.speed);
             if (this.slashStateValue == "idle" && this.shieldStateValue == "idle" && this.chargeStateValue == "idle") {
                 this.sprite.anims.play("character_holyknight_move", true);
             }
@@ -707,11 +717,11 @@ export class character_swordsman {
 
     private doDoge() {
         if (!this.sprite.flipX) {
-            this.sprite.setVelocityX(125);
+            this.sprite.setVelocityX(this.speed * 1.5);
             this.sprite.body.velocity.y *= 1.2;
 
         } else {
-            this.sprite.setVelocityX(-125);
+            this.sprite.setVelocityX(this.speed * -1.5);
             this.sprite.body.velocity.y *= 1.2;
         }
         this.isInvulnerable = true;
@@ -721,7 +731,7 @@ export class character_swordsman {
     }
 
     private checkDogeEnd() {
-        if (utils.tickElapsed(this.lastDogeTick) >= 500) {
+        if (utils.tickElapsed(this.lastDogeTick) >= 600) {
             this.isInvulnerable = false;
             this.isUnstoppable = false;
             this.sprite.setPushable(true);

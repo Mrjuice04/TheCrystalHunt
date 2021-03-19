@@ -535,7 +535,9 @@ export class monster_mummy {
     public destroy() {
         this.sprite.play("monster_mummy_die", true)
         this.destoryed = true;
-        this.bandageEffect.destroy();
+        if (this.bandageEffect !== undefined){
+            this.bandageEffect.destroy();
+        }
         setTimeout(() => {
             this.sprite.destroy();
         }, 500)

@@ -13,6 +13,8 @@ export class monster_hog_charge{
     public oneTimeCollision: boolean = false;
     public collisionFrequency: number = 500;
     private knockBackPower: number = 200;
+    public groundColliding: boolean = false;
+
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision){

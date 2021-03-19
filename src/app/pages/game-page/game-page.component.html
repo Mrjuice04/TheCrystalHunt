@@ -3,14 +3,20 @@
 </div>
 <div class="flex-box">
     <div class="container">
-        <app-game #GameComponent (gameOver)="onGameOver()"></app-game>
-        <div class="gameover-mask" [ngClass]="{'nodisplay': !gameover}">
+        <app-game #GameComponent (gameOver)="onGameOver()" (firstBossClear)="onFirstBossClear()"></app-game>
+        <div class="dialog-mask" [ngClass]="{'nodisplay': !gameover && !clearfirstboss}">
         </div>
         <div class="gameover-image-box" [ngClass]="{'nodisplay': !gameover}">
             <img class="gameover-image" src="../../../assets/gameover.png" />
         </div>
-        <div class="gameover-button-box" [ngClass]="{'nodisplay': !gameover}">
-            <a class="menu-button" (click)="onExitClicked()">Exit</a>
+        <div class="gameover-image-box" [ngClass]="{'nodisplay': !clearfirstboss}">
+            <img class="gameover-image" src="../../../assets/bossClear.png" />
         </div>
-    </div>
+        <div class="bossClearContinue-button-box" [ngClass]="{'nodisplay': !clearfirstboss}">
+            <a class="menu-button" (click)="onContinueClicked()">Infinite Mode</a>
+        </div>
+        <div class="bossClearReturn-button-box" [ngClass]="{'nodisplay': !clearfirstboss}">
+            <a class="menu-button" (click)="onExitClicked()">Menu</a>
+        </div>
+    </div> 
 </div>

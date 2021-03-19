@@ -13,7 +13,7 @@ export class monster_data {
     constructor() {
         let round0_array: Array<monsterParam> = [
             //for testing
-            { name: 'mummy', appearRate: 1, count: 1, preSpawn: false },
+            { name: 'bossSlime', appearRate: 1, count: 1, preSpawn: false },
         ];
         this.map.set("round0", round0_array);
 
@@ -164,16 +164,19 @@ export class monster_data {
         this.map.set("round19", round19_array);
 
         let round20_array: Array<monsterParam> = [
-            { name: 'mummy', appearRate: 0.5, count: 3, preSpawn: false },
-            { name: 'hog', appearRate: 0.5, count: 3, preSpawn: false },
-            { name: 'skeleton', appearRate: 0.5, count: 6, preSpawn: false },
-            { name: 'zombie', appearRate: 1, count: 9, preSpawn: false },
+            { name: 'bossSlime', appearRate: 1, count: 1, preSpawn: true },
+            { name: 'mummy', appearRate: 1, count: 2, preSpawn: false },
+            { name: 'hog', appearRate: 1, count: 3, preSpawn: false },
+            { name: 'skeleton', appearRate: 1, count: 4, preSpawn: false },
+            { name: 'zombie', appearRate: 1, count: 5, preSpawn: false },
         ];
         this.map.set("round20", round20_array);
 
         let round21_array: Array<monsterParam> = [
-            { name: 'skeleton', appearRate: 0.4, count: 3, preSpawn: false },
-            { name: 'zombie', appearRate: 1, count: 12, preSpawn: false },
+            { name: 'mummy', appearRate: 0.3, count: 10000000, preSpawn: false },
+            { name: 'hog', appearRate: 0.4, count: 10000000, preSpawn: false },
+            { name: 'skeleton', appearRate: 0.5, count: 10000000, preSpawn: false },
+            { name: 'zombie', appearRate: 1, count: 10000000, preSpawn: false },
         ];
         this.map.set("round21", round21_array);
 

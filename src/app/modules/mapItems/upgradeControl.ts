@@ -11,11 +11,12 @@ export class upgradeControl {
     gameScene: Phaser.Scene;
     collision: collision;
     crystal!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    upgradeArray: Array<any> = [];
+    upgradeArray: Array<levelUpItem> = [];
     lastSpawnTick!: number;
     currRound: number = 0;
     upgradeSpwaned: boolean = false;
     upgradeEnded: boolean = true;
+    ultLvlUpCount: number = 0;
 
     constructor(aScene: Phaser.Scene, aCollision: collision) {
         this.gameScene = aScene;
@@ -33,6 +34,9 @@ export class upgradeControl {
             for (let i = 0; i < this.upgradeArray.length; i++) {
                 let curr_upgrade = this.upgradeArray[i];
                 if (!curr_upgrade.sprite.active) {
+                    if (curr_upgrade.getAbility() == 3) {
+                        this.ultLvlUpCount--;
+                    }
                     for (let j = 0; j < this.upgradeArray.length; j++) {
                         if (this.upgradeArray[j].sprite.active) {
                             this.upgradeArray[j].destroy();
@@ -47,8 +51,6 @@ export class upgradeControl {
                 }
             }
         }
-
-
     }
 
 
@@ -61,6 +63,9 @@ export class upgradeControl {
 
     private upgradeSpawn() {
         if (this.currRound % 9 == 0) {
+            this.ultLvlUpCount++;
+        }
+        if (this.ultLvlUpCount > 0) {
             for (let i = 0; i < 4; i++) {
                 let upgradeCount = i;
                 let posX = 250 + 100 * upgradeCount;

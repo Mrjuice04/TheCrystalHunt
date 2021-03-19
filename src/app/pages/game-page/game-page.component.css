@@ -16,7 +16,7 @@
     height: 600px;
 }
 
-.gameover-mask {
+.dialog-mask {
     position: absolute;
     top: 0px;
     width: 100%;
@@ -41,6 +41,33 @@
     top: 275px;
     width: 100%;
 }
+
+.bossClearContinue-button-box {
+    position: absolute;
+    top: 300px;
+    width: 100%;
+}
+
+.bossClearContinue-button-box a{
+    display: block;
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bossClearReturn-button-box {
+    position: absolute;
+    top: 350px;
+    width: 100%;
+}
+
+.bossClearReturn-button-box a{
+    display: block;
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 .gameover-button-box a {
     display: block;

@@ -9,6 +9,7 @@ export class monster_skeleton_bone{
     collision: collision;
     damage: number = 20;
     public oneTimeCollision: boolean = true;
+    public groundColliding: boolean = true;
 
 
     constructor(aScene: Phaser.Scene, aCollision: collision){

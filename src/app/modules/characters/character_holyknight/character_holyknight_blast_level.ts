@@ -9,9 +9,9 @@ export class blastLevelData {
     private map = new Map();
 
     slashParamArray: Array<blastLevelParam> = [
-        { damage: 10, heal: 0, blastCount: 8 },
-        { damage: 20, heal: 0, blastCount: 12 }, // added stun
-        { damage: 20, heal: 0, blastCount: 15 }, // added explosion 
+        { damage: 25, heal: 0, blastCount: 8 },
+        { damage: 40, heal: 0, blastCount: 8 }, // added stun
+        { damage: 50, heal: 0, blastCount: 8 }, // added explosion 
     ]
 
     constructor() {

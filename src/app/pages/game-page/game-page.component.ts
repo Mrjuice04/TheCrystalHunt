@@ -11,6 +11,7 @@ export class GamePageComponent implements OnInit {
   @ViewChild('GameComponent') gameComponent!: GameComponent;
 
   gameover: boolean = false;
+  clearfirstboss: boolean = false;
 
   constructor(private router: Router, private route: ActivatedRoute) { }
 
@@ -21,10 +22,21 @@ export class GamePageComponent implements OnInit {
     this.router.navigate(['home']);
   }
 
+  onContinueClicked(): void {
+    this.clearfirstboss = false;
+  }
+
   onGameOver(): void {
     if (!this.gameover) {
       console.log ('onGameOver()');
       this.gameover = true;
+    }
+  }
+
+  onFirstBossClear(): void {
+    if (!this.clearfirstboss){
+      console.log ('onFirstBossClear()');
+      this.clearfirstboss = true;
     }
   }
 }
